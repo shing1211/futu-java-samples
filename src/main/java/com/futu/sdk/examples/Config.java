@@ -14,8 +14,36 @@ public final class Config {
             .load();
 
     // OpenD connection settings
-    public static final String FUTU_OPEND_HOST = getenv("FUTU_OPEND_HOST", "127.0.0.1");
-    public static final int FUTU_OPEND_PORT = getIntEnv("FUTU_OPEND_PORT", 11111);
+    // FUTU_OPEND_HOSTS supports HA mode (comma-separated host:port:useRSA tuples, e.g. "host1:11111:true,host2:11111:false")
+    // Falls back to single FUTU_OPEND_HOST if not set.
+    public static final String FUTU_OPEND_HOST = getOpenDHost();
+    public static final int FUTU_OPEND_PORT = getOpenDPort();
+
+    private static String getOpenDHost() {
+        String hosts = DOTENV.get("FUTU_OPEND_HOSTS", "");
+        if (hosts != null && !hosts.trim().isEmpty()) {
+            String[] parts = hosts.split(",");
+            if (parts.length > 0) {
+                String[] hostParts = parts[0].trim().split(":");
+                return hostParts.length >= 1 ? hostParts[0] : "127.0.0.1";
+            }
+        }
+        return getenv("FUTU_OPEND_HOST", "127.0.0.1");
+    }
+
+    private static int getOpenDPort() {
+        String hosts = DOTENV.get("FUTU_OPEND_HOSTS", "");
+        if (hosts != null && !hosts.trim().isEmpty()) {
+            String[] parts = hosts.split(",");
+            if (parts.length > 0) {
+                String[] hostParts = parts[0].trim().split(":");
+                if (hostParts.length >= 2) {
+                    try { return Integer.parseInt(hostParts[1]); } catch (NumberFormatException ignored) {}
+                }
+            }
+        }
+        return getIntEnv("FUTU_OPEND_PORT", 11111);
+    }
 
     // RSA encryption
     public static final boolean FUTU_RSA_ENABLED = getBoolEnv("FUTU_RSA_ENABLED", false);

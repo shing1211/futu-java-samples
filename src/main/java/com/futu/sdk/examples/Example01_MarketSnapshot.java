@@ -1,6 +1,5 @@
 package com.futu.sdk.examples;
 
-import com.futu.openapi.ConnStatus;
 import com.futu.openapi.FTAPI;
 import com.futu.openapi.FTAPI_Conn_Qot;
 import com.futu.openapi.FTSPI_Conn;
@@ -56,23 +55,25 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
         qot.setConnSpi(this);
         qot.setQotSpi(this);
 
+        // Set RSA private key before connecting (required for RSA auth)
+        if (Config.FUTU_RSA_ENABLED && !Config.RSA_KEY_CONTENT.isEmpty()) {
+            qot.setRSAPrivateKey(Config.RSA_KEY_CONTENT);
+        }
+
         boolean ok = qot.initConnect(
             Config.FUTU_OPEND_HOST,
             Config.FUTU_OPEND_PORT,
-            false  // isEncrypt
+            Config.FUTU_RSA_ENABLED
         );
         if (!ok) {
             logger.error("initConnect failed!");
             return;
         }
-        logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
+        logger.info("Connecting to {}:{} (RSA={})...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT, Config.FUTU_RSA_ENABLED);
 
-        // Wait for connection ready
+        // Wait for connection ready (connected flag set in onInitConnect callback)
         int waited = 0;
-        while (!connected
-               && qot.getConnStatus() != ConnStatus.CONNECTED
-               && qot.getConnStatus() != ConnStatus.READY
-               && waited < 5000) {
+        while (!connected && waited < 8000) {
             sleep(50);
             waited += 50;
         }
