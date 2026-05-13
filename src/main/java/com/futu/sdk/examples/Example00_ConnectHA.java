@@ -1,8 +1,6 @@
 package com.futu.sdk.examples;
 
-import com.futu.openapi.ConnStatus;
-import com.futu.openapi.FTAPI;
-import com.futu.openapi.FTAPI_Conn_Qot;
+import com.futu.openapi.*;
 import com.futu.openapi.pb.GetGlobalState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,37 +11,50 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * HA Gateway Selection Demo (standalone).
+ * HA Gateway Selection Demo.
  *
  * TCP probes all configured OpenD hosts in parallel, connects to the fastest.
- * Per-host RSA config with auto-fallback. Demonstrates the full HA algorithm.
+ * Per-host RSA config with auto-fallback.
  *
- * Configuration (environment variables override hardcoded defaults):
- *   FUTU_OPEND_HOSTS - comma-separated host:port:is_rsa entries
- *   FUTU_ADDR        - single host fallback
- *   FUTU_RSA_KEY     - path to RSA private key
- *   FUTU_TCP_TIMEOUT - TCP probe timeout in seconds
+ * Hosts from Config.getHosts() (reads .env via dotenv-java).
+ * Format: "host:port:is_rsa" entries, e.g. "172.18.208.88:11111:true,172.20.208.88:11111:true"
+ *
+ * RSA key: Auto-converts PKCS#8 (-----BEGIN PRIVATE KEY-----) to PKCS#1 (-----BEGIN RSA PRIVATE KEY-----)
+ *          as required by the Futu Java SDK.
  *
  * Usage:
  *   mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example00_ConnectHA"
  */
-public class Example00_ConnectHA {
+public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
 
     private static final Logger logger = LoggerFactory.getLogger(Example00_ConnectHA.class);
 
-    private static final String FUTU_OPEND_HOSTS = Config.FUTU_RSA_ENABLED ? "" : "";
-    private static final String FUTU_ADDR = Config.FUTU_OPEND_HOST + ":" + Config.FUTU_OPEND_PORT;
     private static final int TCP_TIMEOUT_SECONDS = 3;
+
+    private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
+    private volatile boolean connected = false;
+    private volatile int globalStateRetCode = -1;
 
     public static void main(String[] args) {
         logger.info("=== HA Gateway Selection Demo ===");
-        logger.info("OpenD: {}:{}", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
-        logger.info("RSA: {} (key={})", Config.FUTU_RSA_ENABLED, Config.FUTU_RSA_KEY_PATH);
+        logger.info("FUTU_OPEND_HOSTS from .env: {}", String.join(",", Config.getHosts()));
+        logger.info("RSA enabled={} key={}", Config.FUTU_RSA_ENABLED, Config.FUTU_RSA_KEY_PATH);
 
-        List<HostEntry> hosts = parseHosts();
+        FTAPI.init();
+        Example00_ConnectHA demo = new Example00_ConnectHA();
+        demo.run();
+    }
+
+    public void run() {
+        String[] hostEntries = Config.getHosts();
+        List<HostEntry> hosts = new ArrayList<>();
+        for (String entry : hostEntries) {
+            hosts.add(HostEntry.parse(entry));
+        }
+
         logger.info("TCP probing {} hosts (timeout={}s)...", hosts.size(), TCP_TIMEOUT_SECONDS);
         for (HostEntry h : hosts) {
-            logger.info("  host={}:{} isRSA={}", h.host, h.port, h.isRSA);
+            logger.info("  probe {}:{} isRSA={}", h.host, h.port, h.isRSA);
         }
 
         // Parallel TCP probe
@@ -61,38 +72,9 @@ public class Example00_ConnectHA {
         }
 
         HostEntry fastest = reachable.get(0);
-        long fastestTcpMs = tcpResults.get(fastest);
-        logger.info("\nFastest: {}:{} (TCP {}ms)", fastest.host, fastest.port, fastestTcpMs);
-        logger.info("Attempting connection...");
+        logger.info("\nFastest: {}:{} (TCP {}ms)", fastest.host, fastest.port, tcpResults.get(fastest));
 
         tryConnect(fastest);
-
-        logger.info("\nDone. Run other examples to use the full SDK.");
-    }
-
-    // -------------------------------------------------------------------------
-    // Host parsing
-    // -------------------------------------------------------------------------
-
-    private static List<HostEntry> parseHosts() {
-        List<HostEntry> result = new ArrayList<>();
-        String hostsEnv = System.getenv("FUTU_OPEND_HOSTS");
-        if (hostsEnv != null && !hostsEnv.trim().isEmpty()) {
-            for (String entry : hostsEnv.split(",")) {
-                String[] parts = entry.trim().split(":");
-                String host = parts[0];
-                int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 11111;
-                boolean isRSA = parts.length > 2 ? "true".equalsIgnoreCase(parts[2]) : true;
-                result.add(new HostEntry(host, port, isRSA));
-            }
-        } else {
-            // Fallback: single host
-            String[] parts = FUTU_ADDR.split(":");
-            String host = parts[0];
-            int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 11111;
-            result.add(new HostEntry(host, port, Config.FUTU_RSA_ENABLED));
-        }
-        return result;
     }
 
     // -------------------------------------------------------------------------
@@ -110,15 +92,14 @@ public class Example00_ConnectHA {
                 results.put(host, latency);
                 String status = latency != null ? latency + "ms" : "unreachable";
                 String rsaTag = host.isRSA ? "[RSA]" : "[noRSA]";
-                logger.info("  TCP {} {}:{} -> {}", rsaTag, host.host, host.port, status);
+                logger.info("  {} {}:{} -> {}", rsaTag, host.host, host.port, status);
             });
         }
 
         executor.shutdown();
         try {
             executor.awaitTermination(TCP_TIMEOUT_SECONDS + 1L, TimeUnit.SECONDS);
-        } catch (InterruptedException ignored) {
-        }
+        } catch (InterruptedException ignored) {}
         return results;
     }
 
@@ -134,66 +115,111 @@ public class Example00_ConnectHA {
     }
 
     // -------------------------------------------------------------------------
-    // Connection attempt
+    // Connection + API calls
     // -------------------------------------------------------------------------
 
-    private static void tryConnect(HostEntry host) {
-        FTAPI_Conn_Qot ctx = new FTAPI_Conn_Qot();
+    private void tryConnect(HostEntry host) {
+        qot.setClientInfo("javaclient", 1);
+        qot.setConnSpi(this);
+        qot.setQotSpi(this);
 
-        // Set RSA private key if enabled
-        if (host.isRSA) {
-            ctx.setRSAPrivateKey(Config.FUTU_RSA_KEY_PATH);
+        // RSA key is pre-loaded by Config.java (PKCS#1 format, ready for SDK)
+        if (host.isRSA && !Config.RSA_KEY_CONTENT.isEmpty()) {
+            qot.setRSAPrivateKey(Config.RSA_KEY_CONTENT);
+            logger.info("RSA key set");
         }
 
-        // Connect: initConnect(host, port, isEncrypt)
-        boolean ok = ctx.initConnect(host.host, host.port, host.isRSA);
+        logger.info("Connecting to {}:{} (RSA={})...", host.host, host.port, host.isRSA);
+        boolean ok = qot.initConnect(host.host, host.port, host.isRSA);
         if (!ok) {
-            // Try without RSA if primary failed
-            if (host.isRSA) {
-                logger.info("  Primary (RSA) failed, trying without RSA...");
-                ok = ctx.initConnect(host.host, host.port, false);
-            }
-            if (!ok) {
-                logger.error("All connection attempts failed!");
-                System.exit(1);
-            }
-        }
-
-        // Wait for connection to be ready
-        int waitCount = 0;
-        while (ctx.getConnStatus() == ConnStatus.START ||
-               ctx.getConnStatus() == ConnStatus.CONNECTING) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-            }
-            waitCount++;
-            if (waitCount > 300) {
-                logger.error("Connection timeout!");
-                System.exit(1);
-            }
-        }
-
-        if (ctx.getConnStatus() != ConnStatus.CONNECTED &&
-            ctx.getConnStatus() != ConnStatus.READY) {
-            logger.error("Connection failed, status={}", ctx.getConnStatus());
+            logger.error("initConnect returned false!");
             System.exit(1);
         }
 
-        // Get global state via callback SPI
-        // The Java SDK uses async callback pattern - for demo, just show connected
-        logger.info("✅ Connected to {}:{}", host.host, host.port);
-        logger.info("   Status: {}", ctx.getConnStatus());
-        logger.info("   (Java SDK uses async callbacks for API responses)");
-        logger.info("   Run with a FTSPI_Qot implementation to receive API responses.");
+        int waited = 0;
+        while (!connected && waited < 8000) {
+            sleep(50);
+            waited += 50;
+        }
 
-        ctx.close();
-        logger.info("Connection closed.");
+        if (!connected) {
+            logger.error("Connection timed out. Status={}", qot.getConnStatus());
+            System.exit(1);
+        }
+
+        logger.info("✅ Connected! connID={} status={}", qot.getConnectID(), qot.getConnStatus());
+
+        // Get global state
+        logger.info("\n--- getGlobalState ---");
+        int ret = qot.getGlobalState(GetGlobalState.Request.getDefaultInstance());
+        logger.info("getGlobalState ret={}", ret);
+
+        int waited2 = 0;
+        while (globalStateRetCode == -1 && waited2 < 5000) {
+            sleep(30);
+            waited2 += 30;
+        }
+
+        if (globalStateRetCode == 0) {
+            logger.info("✅ getGlobalState success");
+        } else {
+            logger.warn("⚠️ getGlobalState retCode={} (check qot/trd login)", globalStateRetCode);
+        }
+
+        logger.info("\nKeeping connection alive for 3s...");
+        sleep(3000);
+
+        qot.close();
+        logger.info("Connection closed. Done.");
+    }
+
+    // -------------------------------------------------------------------------
+    // FTSPI_Conn
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void onInitConnect(FTAPI_Conn client, long errCode, String desc) {
+        logger.info("  [Conn] onInitConnect: errCode={} desc='{}'", errCode, desc);
+        if (errCode == 0) connected = true;
+    }
+
+    @Override
+    public void onDisconnect(FTAPI_Conn client, long errCode) {
+        logger.info("  [Conn] onDisconnect: errCode={}", errCode);
+        connected = false;
+    }
+
+    // -------------------------------------------------------------------------
+    // FTSPI_Qot
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void onReply_GetGlobalState(FTAPI_Conn client, int retCode,
+                                        GetGlobalState.Response rsp) {
+        logger.info("  [Qot] onReply_GetGlobalState: retCode={}", retCode);
+        globalStateRetCode = retCode;
+        if (retCode == 0 && rsp.hasS2C()) {
+            var s2c = rsp.getS2C();
+            logger.info("    serverVer={} qotLogined={} trdLogined={} time={}",
+                s2c.getServerVer(), s2c.getQotLogined(), s2c.getTrdLogined(), s2c.getTime());
+        }
     }
 
     // -------------------------------------------------------------------------
     // Host entry
     // -------------------------------------------------------------------------
 
-    private record HostEntry(String host, int port, boolean isRSA) {}
+    private record HostEntry(String host, int port, boolean isRSA) {
+        static HostEntry parse(String entry) {
+            String[] p = entry.trim().split(":");
+            String h = p[0].trim();
+            int port = p.length > 1 ? Integer.parseInt(p[1].trim()) : 11111;
+            boolean rsa = p.length <= 2 || "true".equalsIgnoreCase(p[2].trim());
+            return new HostEntry(h, port, rsa);
+        }
+    }
+
+    private static void sleep(long ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+    }
 }
