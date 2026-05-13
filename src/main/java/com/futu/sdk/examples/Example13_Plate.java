@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Example 13: Plate List (get_plate_list / get_plate_stock)
+ * Example 13: Plate List & Stocks in Plate
  *
  * Demonstrates:
  *   - getPlateSet: all industry/sector plates for a market
- *   - PlateSetType: ALL, INDUSTRY, CONCEPT, etc.
  *   - getPlateSecurity: stocks belonging to a specific plate
+ *   - PlateSetType: ALL, INDUSTRY, CONCEPT, etc.
  *
  * Mirrors: examples/13_plate/main.py from futu-python-samples
  */
@@ -27,7 +27,6 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
     private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
     private volatile boolean connected = false;
 
-    // Market: HK=1
     private static final int MARKET_HK = 1;
 
     // PlateSetType: All=0, Industry=1, Region=2, Concept=3, Other=4
@@ -69,33 +68,13 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
-        // ── getPlateSet: ALL plates for HK ─────────────────────────────
-        logger.info("\n=== getPlateSet: HK (ALL) ===");
-        var c2sAll = QotGetPlateSet.C2S.newBuilder()
-            .setMarket(MARKET_HK)
-            .setPlateSetType(PLATE_SET_ALL)
-            .build();
-        int ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(c2sAll).build());
-        logger.info("getPlateSet(ALL) ret={}", ret);
-        sleep(300);
-
-        // ── getPlateSet: INDUSTRY plates for HK ────────────────────────
-        logger.info("\n=== getPlateSet: HK (INDUSTRY) ===");
-        var c2sInd = QotGetPlateSet.C2S.newBuilder()
-            .setMarket(MARKET_HK)
-            .setPlateSetType(PLATE_SET_INDUSTRY)
-            .build();
-        ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(c2sInd).build());
-        logger.info("getPlateSet(INDUSTRY) ret={}", ret);
-        sleep(300);
-
         // ── getPlateSet: CONCEPT plates for HK ─────────────────────────
         logger.info("\n=== getPlateSet: HK (CONCEPT) ===");
         var c2sCon = QotGetPlateSet.C2S.newBuilder()
             .setMarket(MARKET_HK)
             .setPlateSetType(PLATE_SET_CONCEPT)
             .build();
-        ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(c2sCon).build());
+        int ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(c2sCon).build());
         logger.info("getPlateSet(CONCEPT) ret={}", ret);
 
         qot.close();
@@ -135,9 +114,40 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
                 logger.info("      plate[{}] code={} name={} type={}",
                     i, p.getPlate().getCode(), p.getName(), p.getPlateType());
             }
-            if (count > 5) logger.info("      ... ({} more)", count - 5);
+            if (count > 5) {
+                logger.info("      ... ({} more)", count - 5);
+                // Pick one plate and query its stocks
+                var firstPlate = s2c.getPlateInfoList(5);
+                logger.info("\n    Fetching stocks for plate: {} ({})",
+                    firstPlate.getPlate().getCode(), firstPlate.getName());
+                var psC2s = QotGetPlateSecurity.C2S.newBuilder()
+                    .setPlate(firstPlate.getPlate())
+                    .build();
+                int ret = qot.getPlateSecurity(QotGetPlateSecurity.Request.newBuilder().setC2S(psC2s).build());
+                logger.info("getPlateSecurity ret={}", ret);
+            }
         } else {
             logger.warn("    getPlateSet failed retCode={}", retCode);
+        }
+    }
+
+    @Override
+    public void onReply_GetPlateSecurity(com.futu.openapi.FTAPI_Conn client, int retCode,
+                                          QotGetPlateSecurity.Response rsp) {
+        logger.info("  [Qot] onReply_GetPlateSecurity: retCode={}", retCode);
+        if (retCode == 0 && rsp.hasS2C()) {
+            var s2c = rsp.getS2C();
+            int count = s2c.getStaticInfoListCount();
+            logger.info("    Stocks in plate ({}):", count);
+            for (int i = 0; i < Math.min(count, 5); i++) {
+                var s = s2c.getStaticInfoList(i);
+                if (!s.hasBasic()) continue;
+                logger.info("      [{}] code={} name={}", i,
+                    s.getBasic().getSecurity().getCode(), s.getBasic().getName());
+            }
+            if (count > 5) logger.info("      ... ({} more)", count - 5);
+        } else {
+            logger.warn("    getPlateSecurity failed retCode={}", retCode);
         }
     }
 
