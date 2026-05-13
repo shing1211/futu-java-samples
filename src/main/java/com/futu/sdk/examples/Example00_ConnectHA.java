@@ -34,6 +34,7 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
     private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
     private volatile boolean connected = false;
     private volatile int globalStateRetCode = -1;
+    private volatile GetGlobalState.Response lastRsp = null;
 
     public static void main(String[] args) {
         logger.info("=== HA Gateway Selection Demo ===");
@@ -123,13 +124,10 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
         qot.setConnSpi(this);
         qot.setQotSpi(this);
 
-        // RSA key is pre-loaded by Config.java (PKCS#1 format, ready for SDK)
         if (host.isRSA && !Config.RSA_KEY_CONTENT.isEmpty()) {
             qot.setRSAPrivateKey(Config.RSA_KEY_CONTENT);
-            logger.info("RSA key set");
         }
 
-        logger.info("Connecting to {}:{} (RSA={})...", host.host, host.port, host.isRSA);
         boolean ok = qot.initConnect(host.host, host.port, host.isRSA);
         if (!ok) {
             logger.error("initConnect returned false!");
@@ -149,9 +147,11 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
 
         logger.info("✅ Connected! connID={} status={}", qot.getConnectID(), qot.getConnStatus());
 
-        // Get global state
+        GetGlobalState.C2S c2s = GetGlobalState.C2S.newBuilder().setUserID(0).build();
+        GetGlobalState.Request req = GetGlobalState.Request.newBuilder().setC2S(c2s).build();
+
         logger.info("\n--- getGlobalState ---");
-        int ret = qot.getGlobalState(GetGlobalState.Request.getDefaultInstance());
+        int ret = qot.getGlobalState(req);
         logger.info("getGlobalState ret={}", ret);
 
         int waited2 = 0;
@@ -161,9 +161,23 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
         }
 
         if (globalStateRetCode == 0) {
-            logger.info("✅ getGlobalState success");
+            logger.info("✅ getGlobalState success (retCode=0)");
+        } else if (globalStateRetCode == 2) {
+            var rsp = lastRsp;
+            if (rsp != null && rsp.hasS2C()) {
+                var s2c = rsp.getS2C();
+                if (s2c.getQotLogined() && s2c.getTrdLogined()) {
+                    logger.info("✅ getGlobalState success! qotLogined={} trdLogined={} serverVer={}",
+                        s2c.getQotLogined(), s2c.getTrdLogined(), s2c.getServerVer());
+                } else {
+                    logger.warn("⚠️ getGlobalState retCode=2 but not logged in: qotLogined={} trdLogined={}",
+                        s2c.getQotLogined(), s2c.getTrdLogined());
+                }
+            } else {
+                logger.warn("⚠️ getGlobalState retCode={} with no s2C data", globalStateRetCode);
+            }
         } else {
-            logger.warn("⚠️ getGlobalState retCode={} (check qot/trd login)", globalStateRetCode);
+            logger.warn("⚠️ getGlobalState retCode={}", globalStateRetCode);
         }
 
         logger.info("\nKeeping connection alive for 3s...");
@@ -193,15 +207,19 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
     // FTSPI_Qot
     // -------------------------------------------------------------------------
 
-    @Override
+@Override
     public void onReply_GetGlobalState(FTAPI_Conn client, int retCode,
                                         GetGlobalState.Response rsp) {
-        logger.info("  [Qot] onReply_GetGlobalState: retCode={}", retCode);
+        lastRsp = rsp;
         globalStateRetCode = retCode;
-        if (retCode == 0 && rsp.hasS2C()) {
-            var s2c = rsp.getS2C();
-            logger.info("    serverVer={} qotLogined={} trdLogined={} time={}",
-                s2c.getServerVer(), s2c.getQotLogined(), s2c.getTrdLogined(), s2c.getTime());
+        if (retCode == 0 || (rsp.hasS2C() && rsp.getS2C().getQotLogined())) {
+            if (rsp.hasS2C()) {
+                var s2c = rsp.getS2C();
+                logger.info("  [Qot] onReply_GetGlobalState: retCode={} qotLogined={} trdLogined={} serverVer={}",
+                    retCode, s2c.getQotLogined(), s2c.getTrdLogined(), s2c.getServerVer());
+            }
+        } else {
+            logger.warn("  [Qot] onReply_GetGlobalState: retCode={} hasS2C={}", retCode, rsp.hasS2C());
         }
     }
 
@@ -217,6 +235,14 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
             boolean rsa = p.length <= 2 || "true".equalsIgnoreCase(p[2].trim());
             return new HostEntry(h, port, rsa);
         }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     private static void sleep(long ms) {

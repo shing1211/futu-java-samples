@@ -6,6 +6,7 @@ import com.futu.openapi.FTSPI_Conn;
 import com.futu.openapi.FTSPI_Qot;
 import com.futu.openapi.pb.GetGlobalState;
 import com.futu.openapi.pb.QotGetBasicQot;
+import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import com.futu.openapi.pb.QotCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,9 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
 
         // ---- getGlobalState ----
         logger.info("\n--- getGlobalState ---");
-        int ret = qot.getGlobalState(GetGlobalState.Request.getDefaultInstance());
+        GetGlobalState.C2S gsC2s = GetGlobalState.C2S.newBuilder().setUserID(0).build();
+        GetGlobalState.Request gsReq = GetGlobalState.Request.newBuilder().setC2S(gsC2s).build();
+        int ret = qot.getGlobalState(gsReq);
         logger.info("getGlobalState ret={}", ret);
 
         // Wait for callback
@@ -100,18 +103,28 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
                 s2c.getServerVer(), s2c.getQotLogined()?"CONNECTED":"DISCONNECTED", s2c.getTime());
         }
 
-        // ---- getBasicQot (market snapshot) ----
-        logger.info("\n--- getBasicQot ---");
-        for (QotCommon.Security sec : SECS) {
-            QotGetBasicQot.C2S c2s = QotGetBasicQot.C2S.newBuilder()
-                .addSecurityList(sec)
-                .build();
-            QotGetBasicQot.Request req = QotGetBasicQot.Request.newBuilder()
-                .setC2S(c2s)
-                .build();
-            ret = qot.getBasicQot(req);
-            logger.info("getBasicQot({}) ret={}", sec.getCode(), ret);
-        }
+        // ---- getSecuritySnapshot (no subscription needed) ----
+        logger.info("\n--- getSecuritySnapshot ---");
+        QotCommon.Security[] SNAP_SECS = {
+            QotCommon.Security.newBuilder()
+                .setMarket(QotCommon.QotMarket.QotMarket_HK_Security.getNumber())
+                .setCode("00700")
+                .build(),
+            QotCommon.Security.newBuilder()
+                .setMarket(QotCommon.QotMarket.QotMarket_US_Security.getNumber())
+                .setCode("AAPL")
+                .build(),
+        };
+
+        QotGetSecuritySnapshot.C2S snapC2s = QotGetSecuritySnapshot.C2S.newBuilder()
+            .addSecurityList(SNAP_SECS[0])
+            .addSecurityList(SNAP_SECS[1])
+            .build();
+        QotGetSecuritySnapshot.Request snapReq = QotGetSecuritySnapshot.Request.newBuilder()
+            .setC2S(snapC2s)
+            .build();
+        ret = qot.getSecuritySnapshot(snapReq);
+        logger.info("getSecuritySnapshot ret={}", ret);
 
         // Wait for callbacks to arrive
         sleep(2000);
@@ -145,13 +158,13 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
     @Override
     public void onReply_GetGlobalState(com.futu.openapi.FTAPI_Conn client, int retCode,
                                         GetGlobalState.Response rsp) {
-        logger.info("  [Qot] onReply_GetGlobalState: retCode={}", retCode);
         globalStateRetCode = retCode;
         globalStateRsp = rsp;
-        if (retCode == 0 && rsp.hasS2C()) {
+        logger.info("  [Qot] onReply_GetGlobalState: retCode={} retType={}", retCode, rsp.getRetType());
+        if (rsp.hasS2C()) {
             var s2c = rsp.getS2C();
             logger.info("    serverVer={} connStatus={} marketSvrTime={}",
-                s2c.getServerVer(), s2c.getQotLogined()?"CONNECTED":"DISCONNECTED", s2c.getTime());
+                s2c.getServerVer(), s2c.getQotLogined() ? "CONNECTED" : "DISCONNECTED", s2c.getTime());
         }
     }
 
@@ -163,14 +176,39 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
             for (var basic : s2c.getBasicQotListList()) {
                 String code = basic.getSecurity().getCode();
                 double curPrice = basic.getCurPrice();
-                
+
                 double yesClose = basic.getLastClosePrice();
                 double chgPct = (curPrice > 0 && yesClose > 0)
                     ? (curPrice - yesClose) / yesClose * 100 : 0;
                 logger.info("  [Qot] {} @ {} ({:+.2f}%)", code, curPrice, chgPct);
             }
         } else {
-            logger.warn("  [Qot] onReply_GetBasicQot retCode={}", retCode);
+            logger.warn("  [Qot] onReply_GetBasicQot retCode={} hasS2C={}", retCode, rsp.hasS2C());
+            if (rsp.hasS2C()) {
+                logger.warn("    basicQotList size={}", rsp.getS2C().getBasicQotListList().size());
+            }
+            logger.warn("    full response: {}", rsp);
+        }
+    }
+
+    @Override
+    public void onReply_GetSecuritySnapshot(com.futu.openapi.FTAPI_Conn client, int retCode,
+                                             QotGetSecuritySnapshot.Response rsp) {
+        logger.info("  [Qot] onReply_GetSecuritySnapshot retCode={} retType={}", retCode, rsp.getRetType());
+        if (rsp.hasS2C()) {
+            var list = rsp.getS2C().getSnapshotListList();
+            if (!list.isEmpty()) {
+                for (var snap : list) {
+                    var basic = snap.getBasic();
+                    double chgPct = basic.getLastClosePrice() > 0
+                        ? (basic.getCurPrice() - basic.getLastClosePrice()) / basic.getLastClosePrice() * 100 : 0;
+                    logger.info("    {} name={} price={} ({:+.2f}%) open={} high={} low={}",
+                        basic.getSecurity().getCode(), basic.getName(), basic.getCurPrice(),
+                        chgPct, basic.getOpenPrice(), basic.getHighPrice(), basic.getLowPrice());
+                }
+            }
+        } else {
+            logger.warn("    getSecuritySnapshot retCode={} no s2C: retMsg={}", retCode, rsp.getRetMsg());
         }
     }
 
