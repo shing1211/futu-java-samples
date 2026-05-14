@@ -114,10 +114,9 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
                 logger.info("      plate[{}] code={} name={} type={}",
                     i, p.getPlate().getCode(), p.getName(), p.getPlateType());
             }
-            if (count > 5) {
-                logger.info("      ... ({} more)", count - 5);
+            if (count > 0) {
                 // Pick one plate and query its stocks
-                var firstPlate = s2c.getPlateInfoList(5);
+                var firstPlate = s2c.getPlateInfoList(0);
                 logger.info("\n    Fetching stocks for plate: {} ({})",
                     firstPlate.getPlate().getCode(), firstPlate.getName());
                 var psC2s = QotGetPlateSecurity.C2S.newBuilder()

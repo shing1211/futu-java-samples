@@ -31,11 +31,12 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
     private volatile boolean connected = false;
     private volatile boolean subscribed = false;
 
-    // SubTypes in QotCommon.SubType: QUOTE=0, TICKER=1, KLINE=2, ORDER_BOOK=3, BROKER=4, RT=5
-    private static final int SUB_TYPE_QUOTE = 0;
-    private static final int SUB_TYPE_TICKER = 1;
+    // SubTypes in QotCommon.SubType: None=0, Basic=1, Broker=2, OrderBook=3, Ticker=4
+    private static final int SUB_TYPE_NONE = 0;
+    private static final int SUB_TYPE_BASIC = 1;
+    private static final int SUB_TYPE_BROKER = 2;
     private static final int SUB_TYPE_ORDER_BOOK = 3;
-    private static final int SUB_TYPE_BROKER = 4;
+    private static final int SUB_TYPE_TICKER = 4;
 
     public static void main(String[] args) {
         logger.info("=== Real-time Quote Push Demo ===");

@@ -43,8 +43,9 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
     // Market: HK=1
     private static final int MARKET_HK = 1;
 
-    // TrdEnv: Simulate=1, Real=2
-    private static final int TRD_ENV_SIMULATE = 1;
+    // TrdEnv: Simulate=0, Real=1
+    private static final int TRD_ENV_SIMULATE = 0;
+    private static final int TRD_ENV_REAL = 1;
 
     // TrdSide: Buy=1, Sell=2
     private static final int TRD_SIDE_BUY = 1;

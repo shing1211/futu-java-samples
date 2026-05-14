@@ -28,14 +28,13 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
     private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
     private volatile boolean connected = false;
 
-    // KLType enum values (from QotCommon.KLType)
-    private static final int KL_TYPE_DAY = 3;
-    private static final int KL_TYPE_60MIN = 9;
-    private static final int KL_TYPE_30MIN = 8;
-    private static final int KL_TYPE_5MIN = 6;
+    // KLType enum values (from QotCommon.KLType): KL_1Min=1, KL_2Min=2, KL_Day=9, KL_Week=10, KL_Month=11, KL_Year=12
     private static final int KL_TYPE_1MIN = 1;
-    private static final int KL_TYPE_WEEK = 4;
-    private static final int KL_TYPE_MONTH = 5;
+    private static final int KL_TYPE_2MIN = 2;
+    private static final int KL_TYPE_DAY = 9;
+    private static final int KL_TYPE_WEEK = 10;
+    private static final int KL_TYPE_MONTH = 11;
+    private static final int KL_TYPE_YEAR = 12;
 
     // RehabType: None=0 (bfq), Forward=1 (qfq)
     private static final int REHAB_NONE = 0;
@@ -126,7 +125,7 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
         // ── requestHistoryKL: bfq vs qfq comparison ─────────────────────────
         logger.info("\n--- requestHistoryKL: hfq (no adj) vs qfq (adj) comparison ---");
         for (var label : new String[]{"hfq (no adj)", "qfq (adj)"}) {
-            int rehabType = label.startsWith("hq") ? REHAB_FORWARD : REHAB_NONE;
+            int rehabType = label.startsWith("qfq") ? REHAB_FORWARD : REHAB_NONE;
             var c2s = QotRequestHistoryKL.C2S.newBuilder()
                 .setSecurity(sec)
                 .setKlType(KL_TYPE_DAY)

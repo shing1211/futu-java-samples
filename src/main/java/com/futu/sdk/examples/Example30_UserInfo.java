@@ -123,8 +123,8 @@ public class Example30_UserInfo implements FTSPI_Trd, FTSPI_Conn {
                 var acc = s2c.getAccList(i);
                 int env = acc.getTrdEnv();
                 String envLabel = switch (env) {
+                    case 0 -> "SIMULATE";
                     case 1 -> "REAL";
-                    case 2 -> "SIM";
                     default -> "ENV(" + env + ")";
                 };
                 logger.info("      acc[{}] accId={} env={} accType={} simAccType={}",

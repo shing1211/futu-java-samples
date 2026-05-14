@@ -30,9 +30,9 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
     // Market: HK=1
     private static final int MARKET_HK = 1;
 
-    // PeriodType: Intraday=0, Day=1, Week=2, Month=3, Year=4, QTD=5, YTD=6
-    private static final int PERIOD_INTRADAY = 0;
-    private static final int PERIOD_DAY = 1;
+    // PeriodType: Unknown=0, Intraday=1, Day=2
+    private static final int PERIOD_TYPE_INTRADAY = 1;
+    private static final int PERIOD_TYPE_DAY = 2;
 
     public static void main(String[] args) {
         logger.info("=== Capital Flow & Distribution Demo ===");

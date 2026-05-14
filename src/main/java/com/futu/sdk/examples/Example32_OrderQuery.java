@@ -37,8 +37,9 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
     private final FTAPI_Conn_Trd trd = new FTAPI_Conn_Trd();
     private volatile boolean connected = false;
 
-    // TrdEnv: REAL=1, SIM=2
-    private static final int TRD_ENV_SIM = 2;
+    // TrdEnv: Simulate=0, Real=1
+    private static final int TRD_ENV_SIMULATE = 0;
+    private static final int TRD_ENV_REAL = 1;
     // TrdMarket: HK=1
     private static final int TRD_MARKET_HK = 1;
 
@@ -295,7 +296,7 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            return input; // fallback
+            throw new RuntimeException("MD5 not available", e);
         }
     }
 

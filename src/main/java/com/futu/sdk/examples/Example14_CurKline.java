@@ -135,15 +135,12 @@ public class Example14_CurKline implements FTSPI_Qot, FTSPI_Conn {
 
     private static String klTypeLabel(int klType) {
         return switch (klType) {
-            case 3 -> "Day";
-            case 4 -> "1Min";
-            case 5 -> "5Min";
-            case 6 -> "15Min";
-            case 7 -> "30Min";
-            case 8 -> "60Min";
+            case 1 -> "1Min";
+            case 2 -> "2Min";
             case 9 -> "Day";
             case 10 -> "Week";
             case 11 -> "Month";
+            case 12 -> "Year";
             default -> "KL(" + klType + ")";
         };
     }

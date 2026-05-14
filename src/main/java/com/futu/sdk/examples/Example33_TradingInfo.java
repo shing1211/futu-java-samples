@@ -31,7 +31,9 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
     private final FTAPI_Conn_Trd trd = new FTAPI_Conn_Trd();
     private volatile boolean connected = false;
 
-    private static final int TRD_ENV_SIM = 2;
+    // TrdEnv: Simulate=0, Real=1
+    private static final int TRD_ENV_SIMULATE = 0;
+    private static final int TRD_ENV_REAL = 1;
     private static final int TRD_MARKET_HK = 1;
     // OrderType: NORMAL=1
     private static final int ORDER_TYPE_NORMAL = 1;
