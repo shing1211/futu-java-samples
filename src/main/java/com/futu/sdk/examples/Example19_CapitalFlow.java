@@ -74,7 +74,7 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
         logger.info("\n=== getCapitalFlow: HK.00700 (INTRADAY) ===");
         var flowIntra = QotGetCapitalFlow.C2S.newBuilder()
             .setSecurity(sec)
-            .setPeriodType(PERIOD_INTRADAY)
+            .setPeriodType(PERIOD_TYPE_INTRADAY)
             .build();
         int ret = qot.getCapitalFlow(QotGetCapitalFlow.Request.newBuilder().setC2S(flowIntra).build());
         logger.info("getCapitalFlow(INTRADAY) ret={}", ret);
@@ -84,7 +84,7 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
         logger.info("\n=== getCapitalFlow: HK.00700 (DAY) ===");
         var flowDay = QotGetCapitalFlow.C2S.newBuilder()
             .setSecurity(sec)
-            .setPeriodType(PERIOD_DAY)
+            .setPeriodType(PERIOD_TYPE_DAY)
             .build();
         ret = qot.getCapitalFlow(QotGetCapitalFlow.Request.newBuilder().setC2S(flowDay).build());
         logger.info("getCapitalFlow(DAY) ret={}", ret);

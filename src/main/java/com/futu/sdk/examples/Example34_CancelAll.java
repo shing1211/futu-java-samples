@@ -1,64 +1,63 @@
 package com.futu.sdk.examples;
 
-import com.futu.openapi.FTAPI;
-import com.futu.openapi.FTAPI_Conn_Trd;
-import com.futu.openapi.FTSPI_Conn;
-import com.futu.openapi.FTSPI_Trd;
+import com.futu.openapi.*;
 import com.futu.openapi.pb.TrdCommon;
 import com.futu.openapi.pb.TrdGetAccList;
-import com.futu.openapi.pb.TrdGetOrderFillList;
 import com.futu.openapi.pb.TrdGetOrderList;
 import com.futu.openapi.pb.TrdUnlockTrade;
+import com.futu.openapi.pb.TrdModifyOrder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
- * Example 32: Order & Deal Query
+ * Example 34: Cancel All Orders (get_order_list + cancel_order + batch cancel)
  *
  * Demonstrates:
- *   - unlockTrade: unlock trading with password (required before trading)
- *   - orderListQuery: live orders with status filter
- *   - historyOrderListQuery: historical orders with date range
- *   - dealListQuery: today's executed trades
- *   - historyDealListQuery: historical executed trades
+ *   - orderListQuery: view current submitted orders before cancel
+ *   - cancelOrder: cancel individual orders
+ *   - Proper logging of all order fields
  *
- * Note: Requires trading context to be unlocked.
- * Order fields: getOrderID/getCode/getName/getTrdSide/getOrderType/getOrderStatus/
- *   getQty/getPrice/getCreateTime/getUpdateTime/getDealQty/getCode
- * OrderFill fields: getFillID/getCode/getName/getTrdSide/getQty/getPrice/getCreateTime
- * TrdFilterConditions: setBeginTime/setEndTime/setCodeListList
- *
- * Mirrors: examples/32_order_query/main.py from futu-python-samples
+ * Mirrors: examples/34_cancel_all/main.py from futu-python-samples
  */
-public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
+public class Example34_CancelAll implements FTSPI_Trd, FTSPI_Conn {
 
-    private static final Logger logger = LoggerFactory.getLogger(Example32_OrderQuery.class);
+    private static final Logger logger = LoggerFactory.getLogger(Example34_CancelAll.class);
 
     private final FTAPI_Conn_Trd trd = new FTAPI_Conn_Trd();
     private volatile boolean connected = false;
 
     // TrdEnv: Simulate=0, Real=1
     private static final int TRD_ENV_SIMULATE = 0;
-    private static final int TRD_ENV_REAL = 1;
-    // TrdMarket: HK=1
     private static final int TRD_MARKET_HK = 1;
 
-    // OrderStatus values
+    // OrderStatus: Submitted=5
     private static final int STATUS_SUBMITTED = 5;
-    private static final int STATUS_FILLED_ALL = 2;
 
     private long accId = 0;
 
+    // Latches
+    private final CountDownLatch accListLatch = new CountDownLatch(1);
+    private final CountDownLatch orderListLatch = new CountDownLatch(1);
+    private final CountDownLatch cancelOrderLatch = new CountDownLatch(1);
+
+    // State
+    private List<Long> pendingOrderIds = new ArrayList<>();
+
     public static void main(String[] args) {
-        logger.info("=== Order & Deal Query Demo ===");
-        logger.info("NOTE: Requires unlock_trade to work.");
+        logger.info("=== Cancel All Orders Demo ===");
         FTAPI.init();
-        Example32_OrderQuery demo = new Example32_OrderQuery();
+        Example34_CancelAll demo = new Example34_CancelAll();
         demo.start();
     }
 
     public void start() {
-        trd.setClientInfo("javaclient_trd", 1);
+        trd.setClientInfo("javaclient-trd", 1);
         trd.setConnSpi(this);
         trd.setTrdSpi(this);
 
@@ -84,11 +83,10 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             return;
         }
 
-        // ── unlockTrade (requires MD5 password) ─────────────────────────
+        // ── Unlock trade ──────────────────────────────────────────────
         String tradePwd = Config.FUTU_TRADE_PASSWORD;
         if (tradePwd != null && !tradePwd.isEmpty()) {
             logger.info("\n--- unlockTrade ---");
-            // Futu API takes MD5(password) as pwdMD5
             String pwdMd5 = md5(tradePwd);
             var unlockC2s = TrdUnlockTrade.C2S.newBuilder()
                 .setUnlock(true)
@@ -101,14 +99,13 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             logger.info("FUTU_TRADE_PASSWORD not set — skipping unlock.");
         }
 
-        // ── getAccList: find accID ──────────────────────────────────────
+        // ── Get account list ──────────────────────────────────────────
         logger.info("\n--- getAccList ---");
         var accC2s = TrdGetAccList.C2S.newBuilder()
             .setNeedGeneralSecAccount(false)
             .build();
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().setC2S(accC2s).build());
         logger.info("getAccList ret={}", ret);
-        sleep(300);
 
         trd.close();
         logger.info("Done.");
@@ -119,13 +116,13 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
     // -------------------------------------------------------------------------
 
     @Override
-    public void onInitConnect(com.futu.openapi.FTAPI_Conn client, long errCode, String desc) {
+    public void onInitConnect(FTAPI_Conn client, long errCode, String desc) {
         logger.info("  [Conn] onInitConnect: errCode={} desc={}", errCode, desc);
         if (errCode == 0) connected = true;
     }
 
     @Override
-    public void onDisconnect(com.futu.openapi.FTAPI_Conn client, long errCode) {
+    public void onDisconnect(FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
         connected = false;
     }
@@ -135,8 +132,7 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
     // -------------------------------------------------------------------------
 
     @Override
-    public void onReply_GetAccList(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                    TrdGetAccList.Response rsp) {
+    public void onReply_GetAccList(FTAPI_Conn client, int retCode, TrdGetAccList.Response rsp) {
         logger.info("  [Trd] onReply_GetAccList: retCode={}", retCode);
         if (retCode == 0 && rsp.hasS2C()) {
             var s2c = rsp.getS2C();
@@ -146,13 +142,14 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
                 logger.info("    acc[{}] accId={} env={}", i, acc.getAccID(), acc.getTrdEnv());
                 if (i == 0) accId = acc.getAccID();
             }
-            if (accId > 0) queryOrders();
+            if (accId > 0) querySubmittedOrders();
         } else {
             logger.warn("    getAccList failed retCode={}", retCode);
         }
+        accListLatch.countDown();
     }
 
-    private void queryOrders() {
+    private void querySubmittedOrders() {
         var header = TrdCommon.TrdHeader.newBuilder()
             .setTrdEnv(TRD_ENV_SIMULATE)
             .setAccID(accId)
@@ -160,7 +157,7 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             .build();
 
         // ── orderListQuery: SUBMITTED ───────────────────────────────────
-        logger.info("\n=== orderListQuery: SUBMITTED (accId={}) ===", accId);
+        logger.info("\n=== Current SUBMITTED orders ===");
         var olC2s = TrdGetOrderList.C2S.newBuilder()
             .setHeader(header)
             .addFilterStatusList(STATUS_SUBMITTED)
@@ -168,96 +165,73 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             .build();
         int ret = trd.getOrderList(TrdGetOrderList.Request.newBuilder().setC2S(olC2s).build());
         logger.info("orderListQuery ret={}", ret);
-        sleep(300);
-
-        // ── historyOrderListQuery: FILLED (last 6 months) ───────────────
-        logger.info("\n=== historyOrderListQuery: FILLED_ALL ===");
-        var holC2s = TrdGetOrderList.C2S.newBuilder()
-            .setHeader(header)
-            .addFilterStatusList(STATUS_FILLED_ALL)
-            .setFilterConditions(TrdCommon.TrdFilterConditions.newBuilder()
-                .setBeginTime("2025-11-01")
-                .setEndTime("2026-05-31")
-                .build())
-            .setRefreshCache(false)
-            .build();
-        ret = trd.getOrderList(TrdGetOrderList.Request.newBuilder().setC2S(holC2s).build());
-        logger.info("historyOrderListQuery ret={}", ret);
-        sleep(300);
-
-        // ── dealListQuery: today's fills ─────────────────────────────────
-        logger.info("\n=== dealListQuery ===");
-        var dlC2s = TrdGetOrderFillList.C2S.newBuilder()
-            .setHeader(header)
-            .setRefreshCache(false)
-            .build();
-        ret = trd.getOrderFillList(TrdGetOrderFillList.Request.newBuilder().setC2S(dlC2s).build());
-        logger.info("dealListQuery ret={}", ret);
-        sleep(300);
-
-        // ── historyDealListQuery ─────────────────────────────────────────
-        logger.info("\n=== historyDealListQuery ===");
-        var hdlC2s = TrdGetOrderFillList.C2S.newBuilder()
-            .setHeader(header)
-            .setFilterConditions(TrdCommon.TrdFilterConditions.newBuilder()
-                .setBeginTime("2025-11-01")
-                .setEndTime("2026-05-31")
-                .build())
-            .setRefreshCache(false)
-            .build();
-        ret = trd.getOrderFillList(TrdGetOrderFillList.Request.newBuilder().setC2S(hdlC2s).build());
-        logger.info("historyDealListQuery ret={}", ret);
     }
 
     @Override
-    public void onReply_UnlockTrade(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                     TrdUnlockTrade.Response rsp) {
+    public void onReply_UnlockTrade(FTAPI_Conn client, int retCode, TrdUnlockTrade.Response rsp) {
         logger.info("  [Trd] onReply_UnlockTrade: retCode={}", retCode);
         if (retCode == 0) logger.info("    unlock successful");
-        else logger.warn("    unlock failed — trading will not work");
+        else logger.warn("    unlock failed");
     }
 
     @Override
-    public void onReply_GetOrderList(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                      TrdGetOrderList.Response rsp) {
+    public void onReply_GetOrderList(FTAPI_Conn client, int retCode, TrdGetOrderList.Response rsp) {
         logger.info("  [Trd] onReply_GetOrderList: retCode={}", retCode);
+        pendingOrderIds.clear();
         if (retCode == 0 && rsp.hasS2C()) {
             var s2c = rsp.getS2C();
             int count = s2c.getOrderListCount();
-            logger.info("    Orders ({}):", count);
-            for (int i = 0; i < Math.min(count, 5); i++) {
+            logger.info("    Submitted orders ({}):", count);
+            for (int i = 0; i < Math.min(count, 20); i++) {
                 var o = s2c.getOrderList(i);
                 logger.info("      order[{}] id={} code={} status={} side={} qty={} price={:.2f}",
                     i, o.getOrderID(), o.getCode(), orderStatusLabel(o.getOrderStatus()),
                     trdSideLabel(o.getTrdSide()), o.getQty(), o.getPrice());
-                logger.info("        createTime={} updateTime={} fillQty={} fillAvgPrice={:.2f} name={}",
-                    o.getCreateTime(), o.getUpdateTime(), o.getFillQty(), o.getFillAvgPrice(), o.getName());
+                logger.info("        createTime={} updateTime={} fillQty={}",
+                    o.getCreateTime(), o.getUpdateTime(), o.getFillQty());
+                pendingOrderIds.add(o.getOrderID());
             }
-            if (count > 5) logger.info("      ... ({} more)", count - 5);
+            if (count > 20) logger.info("      ... ({} more)", count - 20);
+
+            // Cancel each order individually
+            if (!pendingOrderIds.isEmpty()) {
+                logger.info("\n=== Cancelling {} orders individually ===", pendingOrderIds.size());
+                for (Long orderId : pendingOrderIds) {
+                    cancelOrder(orderId);
+                }
+            }
         } else {
             logger.warn("    getOrderList failed retCode={}", retCode);
         }
+        orderListLatch.countDown();
+    }
+
+    private void cancelOrder(long orderId) {
+        var header = TrdCommon.TrdHeader.newBuilder()
+            .setTrdEnv(TRD_ENV_SIMULATE)
+            .setAccID(accId)
+            .setTrdMarket(TRD_MARKET_HK)
+            .build();
+
+        var c2s = TrdModifyOrder.C2S.newBuilder()
+            .setHeader(header)
+            .setOrderID(orderId)
+            .setModifyOrderOp(2)  // 2 = cancel
+            .build();
+        int ret = trd.modifyOrder(TrdModifyOrder.Request.newBuilder().setC2S(c2s).build());
+        logger.info("cancelOrder orderId={} ret={}", orderId, ret);
     }
 
     @Override
-    public void onReply_GetOrderFillList(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                          TrdGetOrderFillList.Response rsp) {
-        logger.info("  [Trd] onReply_GetOrderFillList: retCode={}", retCode);
+    public void onReply_ModifyOrder(FTAPI_Conn client, int retCode, TrdModifyOrder.Response rsp) {
+        logger.info("  [Trd] onReply_ModifyOrder: retCode={}", retCode);
         if (retCode == 0 && rsp.hasS2C()) {
             var s2c = rsp.getS2C();
-            int count = s2c.getOrderFillListCount();
-            logger.info("    Fills ({}):", count);
-            for (int i = 0; i < Math.min(count, 5); i++) {
-                var f = s2c.getOrderFillList(i);
-                logger.info("      fill[{}] id={} code={} side={} qty={} price={:.2f} time={}",
-                    i, f.getFillID(), f.getCode(), trdSideLabel(f.getTrdSide()),
-                    f.getQty(), f.getPrice(), f.getCreateTime());
-                logger.info("        orderID={} name={}", f.getOrderID(), f.getName());
-            }
-            if (count > 5) logger.info("      ... ({} more)", count - 5);
+            logger.info("    cancelled orderID={}", s2c.getOrderID());
         } else {
-            logger.warn("    getOrderFillList failed retCode={}", retCode);
+            logger.warn("    cancelOrder failed retCode={}", retCode);
         }
+        cancelOrderLatch.countDown();
     }
 
     private static String orderStatusLabel(int status) {
@@ -280,10 +254,6 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
         return switch (side) {
             case 1 -> "BUY";
             case 2 -> "SELL";
-            case 3 -> "BUY_BACK";
-            case 4 -> "SELL_SHORT";
-            case 5 -> "BUY_BACK_SHORT";
-            case 6 -> "SELL_LONG";
             default -> "SIDE(" + side + ")";
         };
     }
@@ -296,7 +266,7 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            throw new RuntimeException("MD5 not available", e);
+            return input;
         }
     }
 

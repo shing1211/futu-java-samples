@@ -139,7 +139,7 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
 
     private void queryTradingInfo() {
         var header = TrdCommon.TrdHeader.newBuilder()
-            .setTrdEnv(TRD_ENV_SIM)
+            .setTrdEnv(TRD_ENV_SIMULATE)
             .setAccID(accId)
             .setTrdMarket(TRD_MARKET_HK)
             .build();

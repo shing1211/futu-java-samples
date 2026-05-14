@@ -32,6 +32,9 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
     // KLType enum values (from QotCommon.KLType): KL_1Min=1, KL_2Min=2, KL_Day=9, KL_Week=10, KL_Month=11, KL_Year=12
     private static final int KL_TYPE_1MIN = 1;
     private static final int KL_TYPE_2MIN = 2;
+    private static final int KL_TYPE_5MIN = 5;
+    private static final int KL_TYPE_30MIN = 7;
+    private static final int KL_TYPE_60MIN = 8;
     private static final int KL_TYPE_DAY = 9;
     private static final int KL_TYPE_WEEK = 10;
     private static final int KL_TYPE_MONTH = 11;

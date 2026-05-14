@@ -86,7 +86,7 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
             QotCommon.Security.newBuilder().setMarket(1).setCode("HSImain").build(), // HSI futures
         };
 
-        int[] subtypes = {SUB_TYPE_QUOTE, SUB_TYPE_ORDER_BOOK, SUB_TYPE_TICKER, SUB_TYPE_BROKER};
+        int[] subtypes = {SUB_TYPE_BASIC, SUB_TYPE_ORDER_BOOK, SUB_TYPE_TICKER, SUB_TYPE_BROKER};
 
         // Subscribe
         logger.info("\n--- Subscribing to {} securities with {} subtype(s) ---",
