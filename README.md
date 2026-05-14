@@ -5,7 +5,7 @@ Java examples for [Futu OpenAPI](https://openapi.futunn.com/) — mirrors the
 porting each example to the Java SDK's native callback-driven async model.
 
 **SDK:** `com.futunn.openapi:futu-api:10.5.6508` (Maven)
-**Build:** Java 17+ · Maven 3.6+
+**Build:** Java 25 · Maven 3.9+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
 **Examples:** 56 (00–57, missing 29 and 54)
 
