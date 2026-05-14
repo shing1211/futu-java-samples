@@ -80,11 +80,10 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
         }
 
         // Build subscription list
-        // Use HK.00700 and HK.HSImain format (Python style)
         // Market: HK_Security=1, HK_Future=7, US_Security=2, CNSH=4, CNSZ=5
         QotCommon.Security[] securities = {
-            QotCommon.Security.newBuilder().setMarket(1).setCode("HK.00700").build(),   // Tencent
-            QotCommon.Security.newBuilder().setMarket(1).setCode("HK.HSImain").build(), // HSI futures
+            QotCommon.Security.newBuilder().setMarket(1).setCode("00700").build(),   // Tencent
+            QotCommon.Security.newBuilder().setMarket(1).setCode("HSImain").build(), // HSI futures
         };
 
         int[] subtypes = {SUB_TYPE_QUOTE, SUB_TYPE_ORDER_BOOK, SUB_TYPE_TICKER, SUB_TYPE_BROKER};

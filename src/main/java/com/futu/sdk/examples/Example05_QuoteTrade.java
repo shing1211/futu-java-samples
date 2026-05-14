@@ -102,7 +102,7 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
         logger.info("Fetching account list...");
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().build());
         if (ret != 0) { logger.error("getAccList failed ret={}", ret); return; }
-        sleep(300);
+        try { accListLatch.await(5, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         if (accList.isEmpty()) { logger.error("No trading accounts found!"); return; }
 
         var acc = accList.get(0);
@@ -184,6 +184,7 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
     // -------------------------------------------------------------------------
     private record AccInfo(long accId, int trdMarket, int trdEnv) {}
     private java.util.List<AccInfo> accList = new java.util.ArrayList<>();
+    private final java.util.concurrent.CountDownLatch accListLatch = new java.util.concurrent.CountDownLatch(1);
     private double lastSnapshotPrice = 0;
     private int lotSize = 0;
     private double lastFundsPower = 0;
@@ -221,6 +222,7 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
                 accList.add(new AccInfo(acc.getAccID(), market, acc.getTrdEnv()));
             }
         }
+        accListLatch.countDown();
     }
 
     @Override

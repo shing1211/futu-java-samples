@@ -232,7 +232,7 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
             String[] p = entry.trim().split(":");
             String h = p[0].trim();
             int port = p.length > 1 ? Integer.parseInt(p[1].trim()) : 11111;
-            boolean rsa = p.length <= 2 || "true".equalsIgnoreCase(p[2].trim());
+            boolean rsa = p.length > 2 && "true".equalsIgnoreCase(p[2].trim());
             return new HostEntry(h, port, rsa);
         }
     }

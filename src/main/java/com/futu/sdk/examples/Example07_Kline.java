@@ -7,6 +7,7 @@ import com.futu.openapi.FTSPI_Qot;
 import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetKL;
 import com.futu.openapi.pb.QotRequestHistoryKL;
+import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,13 +108,15 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
         sleep(500);
 
         // ── requestHistoryKL: historical K-line ───────────────────────────────
-        logger.info("\n=== requestHistoryKL: {} last 30 days ===", code);
+        logger.info("\n=== requestHistoryKL: {} last 42 days ===", code);
+        var endDate = LocalDate.now();
+        var beginDate = endDate.minusDays(42);
         var histC2s = QotRequestHistoryKL.C2S.newBuilder()
             .setSecurity(sec)
             .setKlType(KL_TYPE_DAY)
             .setRehabType(REHAB_FORWARD)
-            .setBeginTime("2026-04-01")
-            .setEndTime("2026-05-13")
+            .setBeginTime(beginDate.toString())
+            .setEndTime(endDate.toString())
             .setMaxAckKLNum(100)
             .build();
 

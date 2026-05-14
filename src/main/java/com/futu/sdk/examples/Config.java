@@ -102,12 +102,14 @@ public final class Config {
             String content = Files.readString(Paths.get(path)).trim();
             if (content.startsWith("-----BEGIN PRIVATE KEY-----")) {
                 // Convert PKCS#8 -> PKCS#1 using OpenSSL
-                ProcessBuilder pb = new ProcessBuilder("openssl", "rsa", "-in", path, "-traditional", "-out", "/tmp/futu_rsa_key.pem");
+                Path tmpFile = Files.createTempFile("futu_rsa_key", ".pem");
+                tmpFile.toFile().deleteOnExit();
+                ProcessBuilder pb = new ProcessBuilder("openssl", "rsa", "-in", path, "-traditional", "-out", tmpFile.toString());
                 pb.redirectErrorStream(true);
                 Process p = pb.start();
                 int ec = p.waitFor();
                 if (ec != 0) throw new RuntimeException("openssl conversion failed: " + new String(p.getInputStream().readAllBytes()));
-                content = Files.readString(Paths.get("/tmp/futu_rsa_key.pem")).trim();
+                content = Files.readString(tmpFile).trim();
             }
             return content;
         } catch (Exception e) {

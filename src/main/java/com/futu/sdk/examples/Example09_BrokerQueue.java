@@ -75,7 +75,7 @@ public class Example09_BrokerQueue implements FTSPI_Qot, FTSPI_Conn {
             .addSubTypeList(QotCommon.SubType.SubType_Broker.getNumber())
             .setIsSubOrUnSub(true)
             .setIsRegOrUnRegPush(true)
-            .setIsFirstPush(false)
+            .setIsFirstPush(true)
             .build();
         int ret = qot.sub(QotSub.Request.newBuilder().setC2S(subC2s).build());
         logger.info("subscribe ret={}", ret);
@@ -98,7 +98,7 @@ public class Example09_BrokerQueue implements FTSPI_Qot, FTSPI_Conn {
             .addSubTypeList(QotCommon.SubType.SubType_Broker.getNumber())
             .setIsSubOrUnSub(true)
             .setIsRegOrUnRegPush(true)
-            .setIsFirstPush(false)
+            .setIsFirstPush(true)
             .build();
         ret = qot.sub(QotSub.Request.newBuilder().setC2S(subHSI).build());
         logger.info("subscribe HSImain ret={}", ret);
