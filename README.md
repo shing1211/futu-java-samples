@@ -5,8 +5,9 @@ Java examples for [Futu OpenAPI](https://openapi.futunn.com/) — mirrors the
 porting each example to the Java SDK's native callback-driven async model.
 
 **SDK:** `com.futunn.openapi:futu-api:10.5.6508` (Maven)
-**Build:** Java 25 · Maven 3.6+
+**Build:** Java 17+ · Maven 3.6+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
+**Examples:** 56 (00–57, missing 29 and 54)
 
 ---
 
@@ -32,7 +33,7 @@ They follow the numbering of futu-python-samples and can be run independently vi
 Maven exec.
 
 ```bash
-mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example00_ConnectHA"
+mvn compile exec:java -Dexec.mainClass=com.futu.sdk.examples.Example00_ConnectHA
 ```
 
 ### Key differences from Python
@@ -44,6 +45,7 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example00_ConnectH
 | Call model | `ret, data = ctx.get_global_state()` | `qot.getGlobalState(req)` → `onReply_GetGlobalState` callback |
 | Connection | `ctx = OpenQuoteContext(host, port)` | `qot.initConnect(host, port, isRSA)` |
 | RSA setup | `SysConfig.set_init_rsa_file(path)` | `qot.setRSAPrivateKey(pkcs1Content)` |
+| SSL/RSA format | Detects PKCS#1/PKCS#8 automatically | Requires **PKCS#1** (`-----BEGIN RSA PRIVATE KEY-----`); `Config.java` auto-converts PKCS#8 → PKCS#1 via `openssl rsa -traditional` |
 
 ### Important — retCode convention
 
@@ -112,6 +114,7 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example01_MarketSn
 | 01 | `Example01_MarketSnapshot` | `getSecuritySnapshot` for HK/US securities (no subscription needed) |
 | 02 | `Example02_QuotePush` | `sub()` + real-time pushes via `onPush_UpdateBasicQuote`, `onPush_UpdateOrderBook` |
 | 03 | `Example03_StockFilter` | `stockFilter` screener with `BaseFilter` + `FinancialFilter` |
+| 04 | `Example04_MacdStrategy` | MACD-based trend strategy using `getKL` + `onPush_UpdateKL` push |
 | 07 | `Example07_Kline` | `getKL` (current bars) + `requestHistoryKL` (historical with pagination) |
 | 08 | `Example08_RtTicker` | `getTicker` (tick-by-tick trades) + `getRT` (intraday OHLCV) |
 | 09 | `Example09_BrokerQueue` | `getBroker` — broker buy/sell queue (bid/ask wall) |
@@ -130,17 +133,44 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example01_MarketSn
 | 23 | `Example23_PriceReminder` | `setPriceReminder` / `getPriceReminder` — price alert management |
 | 24 | `Example24_UserSecurity` | `getUserSecurity` / `modifyUserSecurity` — user security lists |
 | 25 | `Example25_OptionChain` | `getOptionExpirationDate` + `getOptionChain` — index options |
+| 26 | `Example26_HistoryKLQuota` | `requestHistoryKL` quota tracking |
+| 27 | `Example27_CodeChange` | `getCodeChange` — stock code/name changes |
 | 28 | `Example28_Warrant` | `getWarrant` — warrant data |
 | 31 | `Example31_Misc` | `getHoldingChangeList`, `requestRehab`, user security group ops |
+| 36 | `Example36_StockBasicInfo` | `getSecurityStaticInfo` — static security metadata |
+| 41 | `Example41_Rehab` | `requestRehab` — split/dividend adjustment data |
+| 42 | `Example42_CapitalDistribution` | `getCapitalDistribution` — granular capital flow |
+| 44 | `Example44_MultiMarketSnapshot` | `getSecuritySnapshot` across HK/US/SH/SZ markets |
+| 45 | `Example45_StockFilter` | `stockFilter` with extended filter criteria |
+| 46 | `Example46_PlateStockFilter` | `getPlateSecurity` + `stockFilter` — plate-based screener |
+| 47 | `Example47_WarrantFilter` | `getWarrant` + filter for warrant screener |
+| 53 | `Example53_MarketHeat` | `getMarketHeat` — market activity heat map |
+| 55 | `Example55_EMA` | EMA indicator calculation from K-line data |
+| 56 | `Example56_ETFComposition` | `getETFComponent` — ETF holdings/constituents |
+| 57 | `Example57_VWAPBenchmark` | VWAP benchmark analysis for US stocks |
 
 ### Trading (requires unlock in REAL mode)
 
 | # | Class | Description |
 |---|-------|-------------|
 | 05 | `Example05_QuoteTrade` | Dual `FTAPI_Conn_Qot` + `FTAPI_Conn_Trd` — quote + buy order in SIMULATE |
+| 06 | `Example06_StockSell` | Sell order placement — position query + sell in SIMULATE |
+| 11 | `Example11_AccInfo` | `getAccList` + `getFunds` + `getPositionList` — account overview |
 | 30 | `Example30_UserInfo` | `getAccList` — list accounts; `subAccPush` — account update push |
 | 32 | `Example32_OrderQuery` | `unlockTrade` → `getOrderList` / `getOrderFillList` — order & fill history |
 | 33 | `Example33_TradingInfo` | `getMaxTrdQtys` — max buy/sell quantities, margin requirements |
+| 34 | `Example34_CancelAll` | `getOrderList` + `modifyOrder` batch cancel |
+| 35 | `Example35_CashFlow` | `getCashFlow` — cash flow statement |
+| 37 | `Example37_MarginRatio` | `getMarginRatio` — margin/short selling data |
+| 38 | `Example38_OrderFee` | `getOrderFee` — per-order fee breakdown |
+| 39 | `Example39_SysNotify` | `subSysNotify` — system notifications push |
+| 40 | `Example40_TradePush` | `onPush_UpdateOrder` / `onPush_UpdateFill` — live order/fill push |
+| 48 | `Example48_OptionsStrategy` | Options combo strategies (vertical spreads, straddles) |
+| 49 | `Example49_AccCashFlow` | `getCashFlow` — per-account cash flow |
+| 50 | `Example50_HistoryOrderDeal` | `getOrderList` / `getOrderFillList` historical records |
+| 51 | `Example51_AccList` | `getAccList` — list all accounts with securities firm info |
+| 52 | `Example52_OptionChainFilter` | `getOptionChain` + `stockFilter` — options screener |
+|
 
 ---
 
@@ -294,7 +324,7 @@ fastest responding host, and connects to it with the appropriate RSA setting.
 mvn compile
 
 # Run a specific example
-mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example07_Kline"
+mvn compile exec:java -Dexec.mainClass=com.futu.sdk.examples.Example07_Kline
 
 # Build a fat JAR (all examples packaged)
 mvn package
@@ -371,9 +401,7 @@ GetGlobalState.Request.newBuilder().setC2S(c2s).build()
 - [ARCHITECTURE.md](ARCHITECTURE.md) — full architecture documentation with
   execution flow diagrams and mermaid component diagram
 - [FUTU_JAVA_SDK_DOC.md](FUTU_JAVA_SDK_DOC.md) — SDK documentation with
-  protobuf field IDs and API reference
-- `graphify-out/graph.html` — interactive knowledge graph of the codebase
-  (open in browser)
+  protobuf field IDs and API reference (imported from Futu OpenAPI docs)
 - [futu-python-samples](https://github.com/shing1211/futu-python-samples) — the
   Python reference implementation
 - [futuapi4go](https://github.com/shing1211/futuapi4go) — a Go port of the same

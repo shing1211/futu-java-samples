@@ -174,7 +174,7 @@ main() → start()
 | HK Future | 7 | `HSImain` |
 | US Future | 23 | |
 | SG Future | 13 | |
-| JP Future | 13 | |
+| JP Future | 25 | |
 
 > Note: US securities use market ID `11` in `QotCommon.QotMarket`, not `2`.
 
@@ -297,11 +297,14 @@ src/main/java/com/futu/sdk/examples/
 ├── Example01_MarketSnapshot.java   # getSecuritySnapshot (no subscription needed)
 ├── Example02_QuotePush.java        # sub() + onPush_UpdateBasicQuote, etc.
 ├── Example03_StockFilter.java      # stockFilter screener
+├── Example04_MacdStrategy.java     # MACD trend strategy + getKL + onPush_UpdateKL
 ├── Example05_QuoteTrade.java       # Dual qot+trd connections, SIMULATE order
+├── Example06_StockSell.java       # Sell order — position query + sell in SIMULATE
 ├── Example07_Kline.java           # getKL + requestHistoryKL with pagination
 ├── Example08_RtTicker.java         # getTicker + getRT
 ├── Example09_BrokerQueue.java      # getBroker — broker bid/ask wall
 ├── Example10_OrderBook.java        # getOrderBook depth (10-level + 50-level)
+├── Example11_AccInfo.java         # getAccList + getFunds + getPositionList
 ├── Example12_TradingDays.java       # requestTradeDate
 ├── Example13_Plate.java           # getPlateSet / getPlateSecurity
 ├── Example14_CurKline.java         # getKL + onPush_UpdateKL live push
@@ -316,11 +319,36 @@ src/main/java/com/futu/sdk/examples/
 ├── Example23_PriceReminder.java   # setPriceReminder / getPriceReminder
 ├── Example24_UserSecurity.java     # getUserSecurity / modifyUserSecurity
 ├── Example25_OptionChain.java      # getOptionExpirationDate + getOptionChain
+├── Example26_HistoryKLQuota.java  # requestHistoryKL quota tracking
+├── Example27_CodeChange.java      # getCodeChange — code/name changes
 ├── Example28_Warrant.java          # getWarrant
 ├── Example30_UserInfo.java         # getAccList + subAccPush
 ├── Example31_Misc.java             # getHoldingChangeList, requestRehab, user security group
 ├── Example32_OrderQuery.java       # unlockTrade + getOrderList + getOrderFillList
-└── Example33_TradingInfo.java      # getMaxTrdQtys, margin requirements
+├── Example33_TradingInfo.java      # getMaxTrdQtys, margin requirements
+├── Example34_CancelAll.java        # getOrderList + modifyOrder batch cancel
+├── Example35_CashFlow.java         # getCashFlow
+├── Example36_StockBasicInfo.java   # getSecurityStaticInfo
+├── Example37_MarginRatio.java      # getMarginRatio
+├── Example38_OrderFee.java         # getOrderFee
+├── Example39_SysNotify.java        # subSysNotify push
+├── Example40_TradePush.java        # onPush_UpdateOrder / onPush_UpdateFill
+├── Example41_Rehab.java            # requestRehab
+├── Example42_CapitalDistribution.java # getCapitalDistribution
+├── Example43_SubscribeLifecycle.java # subscription lifecycle demo
+├── Example44_MultiMarketSnapshot.java # getSecuritySnapshot multi-market
+├── Example45_StockFilter.java      # stockFilter extended criteria
+├── Example46_PlateStockFilter.java # getPlateSecurity + stockFilter
+├── Example47_WarrantFilter.java   # getWarrant + filter screener
+├── Example48_OptionsStrategy.java  # Options combo strategies
+├── Example49_AccCashFlow.java     # getCashFlow per-account
+├── Example50_HistoryOrderDeal.java # getOrderList / getOrderFillList historical
+├── Example51_AccList.java         # getAccList with securities firm info
+├── Example52_OptionChainFilter.java # getOptionChain + stockFilter
+├── Example53_MarketHeat.java      # getMarketHeat
+├── Example55_EMA.java             # EMA indicator calculation
+├── Example56_ETFComposition.java  # getETFComponent
+└── Example57_VWAPBenchmark.java   # VWAP benchmark analysis
 ```
 
 ---
