@@ -4,7 +4,7 @@ Java examples for [Futu OpenAPI](https://openapi.futunn.com/) — mirrors the
 [futu-python-samples](https://github.com/shing1211/futu-python-samples) project,
 porting each example to the Java SDK's native callback-driven async model.
 
-**SDK:** `com.futunn.openapi:futu-api:10.5.6508` (Maven)
+**SDK:** `com.futunn.openapi:futu-api:10.6.6608` (Maven)
 **Build:** Java 25 · Maven 3.9+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
 **Examples:** 56 (00–57, missing 29 and 54)
@@ -359,7 +359,7 @@ mvn javadoc:javadoc
 
 ### `retCode=2` from `getGlobalState` but connection appears working
 
-This is **expected behavior** in SDK version `10.5.6508`. The server
+This is **expected behavior** in SDK version `10.6.6608`. The server
 successfully authenticates and returns `qotLogined=true, trdLogined=true`.
 `retCode=2` in async callbacks indicates a successful response with data —
 **not an error**. Check `rsp.hasS2C()` and the login flags instead.
@@ -373,11 +373,11 @@ immediately on any security with no prior `sub()` needed.
 ### "Failed to parse protobuf protocol" error
 
 Usually means the SDK version and OpenD version are mismatched.
-SDK `10.5.6508` works with OpenD `10.5.6508` and later.
+SDK `10.6.6608` works with OpenD `10.6.6608` and later.
 Downgrade the SDK to match your OpenD version in `pom.xml`:
 
 ```xml
-<futu-api.version>10.2.6208</futu-api.version>
+<futu-api.version>10.5.6508</futu-api.version>
 ```
 
 ### `UninitializedMessageException: Message missing required fields: c2s`

@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <futu-api.version>10.5.6508</futu-api.version>
+        <futu-api.version>10.6.6608</futu-api.version>
     </properties>
 
     <dependencies>

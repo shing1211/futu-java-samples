@@ -2,13 +2,13 @@
 
 ## Overview
 
-`futu-java-samples` is a Java port of the [futu-python-samples](https://github.com/shing1211/futu-python-samples) project, demonstrating the Futu OpenAPI Java SDK (`com.futunn.openapi:futu-api:10.5.6508`). Each example is a standalone Java file runnable via Maven.
+`futu-java-samples` is a Java port of the [futu-python-samples](https://github.com/shing1211/futu-python-samples) project, demonstrating the Futu OpenAPI Java SDK (`com.futunn.openapi:futu-api:10.6.6608`). Each example is a standalone Java file runnable via Maven.
 
 The SDK uses a **callback-driven async model** — all API calls return immediately, and responses arrive via SPI (Service Provider Interface) callbacks. This differs significantly from the synchronous Python SDK and requires careful handling of the async flow.
 
 ## Key discoveries from debugging
 
-### retCode convention (SDK `10.5.6508`)
+### retCode convention (SDK `10.6.6608`)
 
 The SDK uses `retCode` differently across sync vs async contexts:
 
