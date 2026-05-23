@@ -274,6 +274,6 @@ public class Example46_PlateStockFilter implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -312,6 +312,6 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

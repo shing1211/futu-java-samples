@@ -291,6 +291,6 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

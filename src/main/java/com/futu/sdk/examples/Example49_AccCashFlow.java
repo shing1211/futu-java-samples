@@ -1,26 +1,27 @@
 package com.futu.sdk.examples;
 
-import com.futu.openapi.FTAPI;
-import com.futu.openapi.FTAPI_Conn_Trd;
-import com.futu.openapi.FTSPI_Conn;
-import com.futu.openapi.FTSPI_Trd;
+import com.futu.openapi.*;
 import com.futu.openapi.pb.TrdCommon;
 import com.futu.openapi.pb.TrdGetAccList;
+import com.futu.openapi.pb.TrdFlowSummary;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
- * Example 49: Account Cash Flow (get_acc_cash_flow)
+ * Example 49: Account Cash Flow (getFlowSummary)
  *
  * Demonstrates:
- *   - getAccCashFlow: account cash movement history — deposits, withdrawals,
+ *   - getFlowSummary: account cash movement history — deposits, withdrawals,
  *     fees, corporate actions
- *   - TrdEnv: SIMULATE vs REAL environment selection
- *   - Full cash flow record logging
+ *   - TrdEnv: SIMULATE vs REAL environment selection (tries both)
+ *   - CashFlowDirection: ALL, IN, OUT
+ *   - Full cash flow record logging with raw proto output
  *
- * Note: This API may return "Unknown protocol id" for some account types.
- * The Python sample tries both SIMULATE and REAL environments.
+ * Richer version of Example35 — queries both SIMULATE and REAL environments
+ * and shows additional detail per record.
  *
  * Mirrors: examples/49_acc_cash_flow/main.py from futu-python-samples
  */
@@ -34,9 +35,20 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
     // TrdEnv: Simulate=0, Real=1
     private static final int TRD_ENV_SIMULATE = 0;
     private static final int TRD_ENV_REAL = 1;
+    private static final int TRD_MARKET_HK = 1;
 
-    private long accId = 0;
-    private int trdMarket = 1;  // HK=1
+    // CashFlowDirection: All=0, In=1, Out=2
+    private static final int CF_DIR_ALL = 0;
+    private static final int CF_DIR_IN = 1;
+    private static final int CF_DIR_OUT = 2;
+
+    private long accIdSimulate = 0;
+    private long accIdReal = 0;
+    private int trdMarket = TRD_MARKET_HK;
+
+    // Latches: 1 for acc list, 6 for cash flow queries (3 dirs x 2 envs)
+    private final CountDownLatch accListLatch = new CountDownLatch(1);
+    private final CountDownLatch cashFlowLatch = new CountDownLatch(6);
 
     public static void main(String[] args) {
         logger.info("=== Account Cash Flow Demo ===");
@@ -88,16 +100,21 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
             logger.info("FUTU_TRADE_PASSWORD not set — skipping unlock.");
         }
 
-        // Try SIMULATE first, then REAL
-        int[] trdEnvs = {TRD_ENV_SIMULATE, TRD_ENV_REAL};
-        String[] envLabels = {"SIMULATE", "REAL"};
+        // Get account list (returns accounts for all environments)
+        logger.info("\n--- getAccList ---");
+        var accC2s = TrdGetAccList.C2S.newBuilder()
+            .setNeedGeneralSecAccount(false)
+            .build();
+        int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().setC2S(accC2s).build());
+        logger.info("getAccList ret={}", ret);
 
-        for (int i = 0; i < trdEnvs.length; i++) {
-            logger.info("\n=== getAccCashFlow (env={}) ===", envLabels[i]);
-            // Note: getAccCashFlow may not be available in all SDK versions.
-            // This is a placeholder — adjust the call based on available proto.
-            logger.info("  (API may return -1 'Unknown protocol id' for this account type)");
-            sleep(200);
+        // Wait for all async responses
+        try {
+            accListLatch.await();
+            cashFlowLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Interrupted while waiting.", e);
         }
 
         trd.close();
@@ -109,13 +126,13 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
     // -------------------------------------------------------------------------
 
     @Override
-    public void onInitConnect(com.futu.openapi.FTAPI_Conn client, long errCode, String desc) {
+    public void onInitConnect(FTAPI_Conn client, long errCode, String desc) {
         logger.info("  [Conn] onInitConnect: errCode={} desc={}", errCode, desc);
         if (errCode == 0) connected = true;
     }
 
     @Override
-    public void onDisconnect(com.futu.openapi.FTAPI_Conn client, long errCode) {
+    public void onDisconnect(FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
         connected = false;
     }
@@ -125,17 +142,101 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
     // -------------------------------------------------------------------------
 
     @Override
-    public void onReply_UnlockTrade(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                    TrdUnlockTrade.Response rsp) {
-        logger.info("  [Trd] onReply_UnlockTrade: retCode={}", retCode);
-        if (retCode == 0) logger.info("    unlock successful");
-        else logger.warn("    unlock failed retCode={}", retCode);
+    public void onReply_GetAccList(FTAPI_Conn client, int retCode, TrdGetAccList.Response rsp) {
+        logger.info("  [Trd] onReply_GetAccList: retCode={}", retCode);
+        if (retCode == 0 && rsp.hasS2C()) {
+            var s2c = rsp.getS2C();
+            int count = s2c.getAccListCount();
+            for (int i = 0; i < count; i++) {
+                var acc = s2c.getAccList(i);
+                int mktCount = acc.getTrdMarketAuthListCount();
+                int firstMkt = mktCount > 0 ? acc.getTrdMarketAuthList(0) : trdMarket;
+                logger.info("    acc[{}] accId={} env={} market={}",
+                    i, acc.getAccID(), acc.getTrdEnv(), firstMkt);
+                if (acc.getTrdEnv() == TRD_ENV_SIMULATE) accIdSimulate = acc.getAccID();
+                if (acc.getTrdEnv() == TRD_ENV_REAL) accIdReal = acc.getAccID();
+                if (mktCount > 0) trdMarket = acc.getTrdMarketAuthList(0);
+            }
+            queryCashFlowsForEnv(TRD_ENV_SIMULATE, "SIMULATE");
+            queryCashFlowsForEnv(TRD_ENV_REAL, "REAL");
+        } else {
+            logger.warn("    getAccList failed retCode={}", retCode);
+            cashFlowLatch.countDown(); cashFlowLatch.countDown();
+            cashFlowLatch.countDown(); cashFlowLatch.countDown();
+            cashFlowLatch.countDown(); cashFlowLatch.countDown();
+        }
+        accListLatch.countDown();
+    }
+
+    private void queryCashFlowsForEnv(int env, String label) {
+        long aid = (env == TRD_ENV_SIMULATE) ? accIdSimulate : accIdReal;
+        if (aid == 0) {
+            logger.warn("    No account found for env={} — skipping", label);
+            cashFlowLatch.countDown();
+            cashFlowLatch.countDown();
+            cashFlowLatch.countDown();
+            return;
+        }
+
+        var header = TrdCommon.TrdHeader.newBuilder()
+            .setTrdEnv(env)
+            .setAccID(aid)
+            .setTrdMarket(trdMarket)
+            .build();
+
+        int[] directions = {CF_DIR_ALL, CF_DIR_IN, CF_DIR_OUT};
+        String[] dirLabels = {"ALL", "IN (deposits)", "OUT (withdrawals)"};
+
+        for (int i = 0; i < directions.length; i++) {
+            logger.info("\n=== getFlowSummary (env={}, direction={}) ({}) ===", label, directions[i], dirLabels[i]);
+            var c2s = TrdFlowSummary.C2S.newBuilder()
+                .setHeader(header)
+                .setCashFlowDirection(directions[i])
+                .setStartCreateDate("2025-01-01")
+                .setEndCreateDate("2026-05-23")
+                .build();
+            int ret = trd.getFlowSummary(TrdFlowSummary.Request.newBuilder().setC2S(c2s).build());
+            logger.info("getFlowSummary ret={}", ret);
+            sleep(500);
+        }
     }
 
     @Override
-    public void onReply_GetAccList(com.futu.openapi.FTAPI_Conn client, int retCode,
-                                   TrdGetAccList.Response rsp) {
-        // Satisfy interface
+    public void onReply_UnlockTrade(FTAPI_Conn client, int retCode, TrdUnlockTrade.Response rsp) {
+        logger.info("  [Trd] onReply_UnlockTrade: retCode={}", retCode);
+        if (retCode == 0) logger.info("    unlock successful");
+        else logger.warn("    unlock failed");
+    }
+
+    @Override
+    public void onReply_GetFlowSummary(FTAPI_Conn client, int retCode, TrdFlowSummary.Response rsp) {
+        logger.info("  [Trd] onReply_GetFlowSummary: retCode={}", retCode);
+        if (retCode == 0 && rsp.hasS2C()) {
+            var s2c = rsp.getS2C();
+            var flowList = s2c.getFlowSummaryInfoListList();
+            int count = flowList.size();
+            logger.info("    Cash flow records: {}", count);
+            for (int i = 0; i < Math.min(count, 10); i++) {
+                var cf = flowList.get(i);
+                logger.info("      [{}] direction={} amount={} clearing_date={} remark={}",
+                    i, cashFlowDirLabel(cf.getCashFlowDirection()),
+                    cf.getCashFlowAmount(), cf.getClearingDate(), cf.getCashFlowRemark());
+            }
+            if (count > 10) logger.info("      ... ({} more)", count - 10);
+            logger.info("    raw s2c: {}", s2c);
+        } else {
+            logger.warn("    getFlowSummary failed retCode={}", retCode);
+        }
+        cashFlowLatch.countDown();
+    }
+
+    private static String cashFlowDirLabel(int dir) {
+        return switch (dir) {
+            case 0 -> "ALL";
+            case 1 -> "IN";
+            case 2 -> "OUT";
+            default -> "DIR(" + dir + ")";
+        };
     }
 
     private static String md5(String input) {
@@ -146,11 +247,11 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            return input;
+            throw new RuntimeException("MD5 hashing failed", e);
         }
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

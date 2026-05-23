@@ -189,16 +189,18 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
             int count = s2c.getSnapshotListCount();
             logger.info("    Snapshot count: {}", count);
             for (var snap : s2c.getSnapshotListList()) {
-                var basic = snap.getBasic();
-                var sec = basic.getSecurity();
-                String marketLabel = marketLabel(sec.getMarket());
-                double price = basic.getCurPrice();
-                int lotSize = basic.getLotSize();
-                String name = basic.getName();
-                logger.info("    [{}] {} {} price={:.2f} lot={}",
-                    marketLabel, sec.getCode(), name, price, lotSize);
-                synchronized (results) {
-                    results.add(new SnapshotResult(marketLabel, sec.getCode(), name, price, lotSize));
+                if (snap.hasBasic()) {
+                    var basic = snap.getBasic();
+                    var sec = basic.getSecurity();
+                    String marketLabel = marketLabel(sec.getMarket());
+                    double price = basic.getCurPrice();
+                    int lotSize = basic.getLotSize();
+                    String name = basic.getName();
+                    logger.info("    [{}] {} {} price={:.2f} lot={}",
+                        marketLabel, sec.getCode(), name, price, lotSize);
+                    synchronized (results) {
+                        results.add(new SnapshotResult(marketLabel, sec.getCode(), name, price, lotSize));
+                    }
                 }
             }
         } else {
@@ -221,6 +223,6 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

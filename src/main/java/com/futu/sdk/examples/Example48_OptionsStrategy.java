@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   - getOptionExpirationDate: fetch all expiry dates for an index/stock option
  *   - getOptionChain: fetch full chain for a given expiry
  *   - getSecuritySnapshot: get current underlying price
+ *   - getSecuritySnapshot: get real-time option price & Greeks (delta, gamma, theta, vega)
  *   - Construct multi-leg strategies: Bull Call Spread, Bear Put Spread, etc.
- *   - Display Greek letters (delta, gamma, theta, vega) per leg (from OptionBasicData)
  *   - Calculate net debit/credit and break-even for each strategy
  *
  * Strategies implemented:
@@ -52,7 +52,7 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
     private static final int IDX_OPT_NORMAL = 1;
 
     // State
-    private double underlyingPrice = 0;
+    private volatile double underlyingPrice = 0;
     private final List<OptionLeg> callLegs = new ArrayList<>();
     private final List<OptionLeg> putLegs = new ArrayList<>();
     private final AtomicInteger pendingQueries = new AtomicInteger(0);
@@ -60,8 +60,8 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
 
     // Option leg record
     private record OptionLeg(String code, int type /*1=CALL 2=PUT*/, double strike,
-                            double price, double delta, double gamma,
-                            double theta, double vega) {}
+                             double price, double delta, double gamma,
+                             double theta, double vega) {}
 
     public static void main(String[] args) {
         logger.info("=== Options Strategy Builder Demo ===");
@@ -163,8 +163,37 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
 
         try { queryLatch.await(5, TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
-        // ── Step 5: Build and display strategies ───────────────────────────
-        logger.info("\n=== Step 5: Strategy Construction ===");
+        // ── Step 5: Get option snapshots for real price & Greeks ──────────
+        logger.info("\n=== Step 5: Get option snapshots for real price & Greeks ===");
+        List<QotCommon.Security> optSecs = new ArrayList<>();
+        synchronized (callLegs) {
+            for (var leg : callLegs) {
+                optSecs.add(QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode(leg.code).build());
+            }
+        }
+        synchronized (putLegs) {
+            for (var leg : putLegs) {
+                optSecs.add(QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode(leg.code).build());
+            }
+        }
+
+        if (!optSecs.isEmpty()) {
+            pendingQueries.set(1);
+            queryLatch = new CountDownLatch(1);
+
+            var optSnapC2s = QotGetSecuritySnapshot.C2S.newBuilder()
+                .addAllSecurityList(optSecs)
+                .build();
+            ret = qot.getSecuritySnapshot(QotGetSecuritySnapshot.Request.newBuilder().setC2S(optSnapC2s).build());
+            logger.info("getSecuritySnapshot(options) ret={}", ret);
+
+            try { queryLatch.await(5, TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        } else {
+            logger.warn("  No option legs to query snapshots for");
+        }
+
+        // ── Step 6: Build and display strategies ───────────────────────────
+        logger.info("\n=== Step 6: Strategy Construction ===");
         if (underlyingPrice > 0) {
             buildBullCallSpread();
             buildBearPutSpread();
@@ -174,6 +203,30 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
 
         qot.close();
         logger.info("Done.");
+    }
+
+    /**
+     * Replace an OptionLeg in the appropriate list with updated price/Greeks.
+     */
+    private void updateLegData(String code, double price, double delta, double gamma, double theta, double vega) {
+        synchronized (callLegs) {
+            for (int i = 0; i < callLegs.size(); i++) {
+                var leg = callLegs.get(i);
+                if (leg.code.equals(code)) {
+                    callLegs.set(i, new OptionLeg(code, leg.type, leg.strike, price, delta, gamma, theta, vega));
+                    return;
+                }
+            }
+        }
+        synchronized (putLegs) {
+            for (int i = 0; i < putLegs.size(); i++) {
+                var leg = putLegs.get(i);
+                if (leg.code.equals(code)) {
+                    putLegs.set(i, new OptionLeg(code, leg.type, leg.strike, price, delta, gamma, theta, vega));
+                    return;
+                }
+            }
+        }
     }
 
     private void buildBullCallSpread() {
@@ -286,10 +339,23 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
         logger.info("  [Qot] onReply_GetSecuritySnapshot: retCode={}", retCode);
         if (retCode == 0 && rsp.hasS2C()) {
             var list = rsp.getS2C().getSnapshotListList();
-            if (!list.isEmpty()) {
-                var basic = list.get(0).getBasic();
-                underlyingPrice = basic.getCurPrice();
-                logger.info("    Underlying: {} price={:.2f}", basic.getSecurity().getCode(), underlyingPrice);
+            for (var snap : list) {
+                var basic = snap.getBasic();
+                if (snap.hasOptionExData()) {
+                    var opt = snap.getOptionExData();
+                    String code = basic.getSecurity().getCode();
+                    double price = basic.getCurPrice();
+                    double delta = opt.getDelta();
+                    double gamma = opt.getGamma();
+                    double theta = opt.getTheta();
+                    double vega = opt.getVega();
+                    logger.info("    Option: {} price={:.4f} delta={:.4f} gamma={:.6f} theta={:.4f} vega={:.4f}",
+                        code, price, delta, gamma, theta, vega);
+                    updateLegData(code, price, delta, gamma, theta, vega);
+                } else {
+                    underlyingPrice = basic.getCurPrice();
+                    logger.info("    Underlying: {} price={:.2f}", basic.getSecurity().getCode(), underlyingPrice);
+                }
             }
         } else {
             logger.warn("    getSecuritySnapshot failed retCode={}", retCode);
@@ -336,10 +402,7 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
                         var call = item.getCall();
                         if (call.hasBasic()) {
                             String code = call.getBasic().getSecurity().getCode();
-                            // Price and Greeks from OptionBasicData (if available)
-                            // call.getBasic() is SecurityStaticBasic - only has getSecurity() and getName()
-                            // Greeks are not directly available in static basic info
-                            // Using 0.0 as placeholder since getCurPrice is not available on getBasic()
+                            // Price and Greeks will be fetched via getSecuritySnapshot in Step 5
                             OptionLeg leg = new OptionLeg(code, OPT_CALL, strike, 0.0, 0.0, 0.0, 0.0, 0.0);
                             synchronized (callLegs) {
                                 callLegs.add(leg);
@@ -380,6 +443,6 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -295,6 +295,7 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    Stocks found: {}", count);
             for (int i = 0; i < count; i++) {
                 var info = s2c.getStaticInfoList(i);
+                if (!info.hasBasic()) continue;
                 var basic = info.getBasic();
                 var sec = basic.getSecurity();
                 logger.info("    [{}] {} ({}) lot_size={} sec_type={}",
@@ -438,6 +439,6 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

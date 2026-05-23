@@ -131,6 +131,7 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
 
             logger.info("  Snapshot items: {}", s2c.getSnapshotListCount());
             for (var snap : s2c.getSnapshotListList()) {
+                if (!snap.hasBasic()) continue;
                 var basic = snap.getBasic();
                 double cur = basic.getCurPrice();
                 double open = basic.getOpenPrice();
@@ -206,6 +207,6 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

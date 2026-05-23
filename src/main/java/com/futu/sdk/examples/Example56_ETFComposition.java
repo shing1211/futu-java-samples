@@ -238,6 +238,7 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
 
             for (int i = 0; i < count; i++) {
                 var snap = s2c.getSnapshotList(i);
+                if (!snap.hasBasic()) continue;
                 var basic = snap.getBasic();
                 double price = basic.getCurPrice();
                 double vol = basic.getVolume();
@@ -274,8 +275,10 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
             for (int i = 0; i < count - 1; i++) {
                 for (int j = i + 1; j < count; j++) {
                     var s2cInner = rsp.getS2C();
-                    double volI = s2cInner.getSnapshotList(i).getBasic().getTurnover();
-                    double volJ = s2cInner.getSnapshotList(j).getBasic().getTurnover();
+                    var snapI = s2cInner.getSnapshotList(i);
+                    var snapJ = s2cInner.getSnapshotList(j);
+                    double volI = snapI.hasBasic() ? snapI.getBasic().getTurnover() : 0;
+                    double volJ = snapJ.hasBasic() ? snapJ.getBasic().getTurnover() : 0;
                     if (volJ > volI) {
                         // swap
                         double tmpP = prices[i]; prices[i] = prices[j]; prices[j] = tmpP;
@@ -299,7 +302,7 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
     private double totalVolume(QotGetSecuritySnapshot.S2C s2c) {
         double total = 0;
         for (var snap : s2c.getSnapshotListList()) {
-            total += snap.getBasic().getVolume();
+            if (snap.hasBasic()) total += snap.getBasic().getVolume();
         }
         return total;
     }
@@ -312,6 +315,6 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

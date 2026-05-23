@@ -100,7 +100,7 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
         executor.shutdown();
         try {
             executor.awaitTermination(TCP_TIMEOUT_SECONDS + 1L, TimeUnit.SECONDS);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         return results;
     }
 
@@ -246,6 +246,6 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

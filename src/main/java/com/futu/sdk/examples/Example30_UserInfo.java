@@ -40,7 +40,7 @@ public class Example30_UserInfo implements FTSPI_Trd, FTSPI_Conn {
     }
 
     public void start() {
-        trd.setClientInfo("javaclient_trd", 1);
+        trd.setClientInfo("javaclient-trd", 1);
         trd.setConnSpi(this);
         trd.setTrdSpi(this);
 
@@ -175,6 +175,6 @@ public class Example30_UserInfo implements FTSPI_Trd, FTSPI_Conn {
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

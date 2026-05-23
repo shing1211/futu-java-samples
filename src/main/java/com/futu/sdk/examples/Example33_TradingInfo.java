@@ -48,7 +48,7 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
     }
 
     public void start() {
-        trd.setClientInfo("javaclient_trd", 1);
+        trd.setClientInfo("javaclient-trd", 1);
         trd.setConnSpi(this);
         trd.setTrdSpi(this);
 
@@ -189,11 +189,11 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            return input;
+            throw new RuntimeException("MD5 hashing failed", e);
         }
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

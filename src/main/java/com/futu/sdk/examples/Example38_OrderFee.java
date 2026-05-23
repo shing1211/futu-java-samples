@@ -263,11 +263,11 @@ public class Example38_OrderFee implements FTSPI_Trd, FTSPI_Conn {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            return input;
+            throw new RuntimeException("MD5 hashing failed", e);
         }
     }
 
     private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }
