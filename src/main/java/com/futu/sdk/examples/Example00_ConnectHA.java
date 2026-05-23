@@ -147,6 +147,7 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
 
         logger.info("✅ Connected! connID={} status={}", qot.getConnectID(), qot.getConnStatus());
 
+        try {
         GetGlobalState.C2S c2s = GetGlobalState.C2S.newBuilder().setUserID(0).build();
         GetGlobalState.Request req = GetGlobalState.Request.newBuilder().setC2S(c2s).build();
 
@@ -183,7 +184,9 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
         logger.info("\nKeeping connection alive for 3s...");
         sleep(3000);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Connection closed. Done.");
     }
 

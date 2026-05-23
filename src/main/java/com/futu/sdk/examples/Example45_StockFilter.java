@@ -85,6 +85,7 @@ public class Example45_StockFilter implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Filter 1: Value stocks — Low P/E, Low P/B, adequate price ────────
         logger.info("\n=== Filter 1: Value Stocks (PE<15, PB<2, price 5-500) ===");
         var peFilter = QotStockFilter.BaseFilter.newBuilder()
@@ -178,7 +179,9 @@ public class Example45_StockFilter implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.stockFilter(QotStockFilter.Request.newBuilder().setC2S(breakC2s).build());
         logger.info("stockFilter(Breakout) ret={}", ret);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

@@ -51,6 +51,7 @@ public class Example39_SysNotify implements FTSPI_Conn, FTSPI_Trd {
         if (!ok) { logger.error("initConnect failed!"); return; }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
+        try {
         int waited = 0;
         while (!connected && waited < 10000) {
             sleep(50);
@@ -80,7 +81,9 @@ public class Example39_SysNotify implements FTSPI_Conn, FTSPI_Trd {
         logger.info("\nListening for system notifications (15s)...");
         sleep(15000);
 
-        trd.close();
+        } finally {
+            trd.close();
+        }
         logger.info("Done.");
     }
 

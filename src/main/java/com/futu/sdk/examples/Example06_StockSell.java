@@ -100,6 +100,7 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Get account list ──────────────────────────────────────────
         logger.info("Fetching account list...");
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().build());
@@ -151,7 +152,6 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
 
         if (lotSize <= 0) {
             logger.error("Invalid lot_size={} for HK.{}", lotSize, code);
-            qot.close(); trd.close();
             return;
         }
 
@@ -217,8 +217,10 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
             }
         }
 
-        qot.close();
-        trd.close();
+        } finally {
+            qot.close();
+            trd.close();
+        }
         logger.info("Done.");
     }
 

@@ -59,6 +59,7 @@ public class Example26_HistoryKLQuota implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Basic quota check ───────────────────────────────────────────
         logger.info("\n=== requestHistoryKLQuota (summary) ===");
         var quotaC2s = QotRequestHistoryKLQuota.C2S.newBuilder()
@@ -76,8 +77,9 @@ public class Example26_HistoryKLQuota implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.requestHistoryKLQuota(QotRequestHistoryKLQuota.Request.newBuilder().setC2S(detailC2s).build());
         logger.info("requestHistoryKLQuota (wide) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

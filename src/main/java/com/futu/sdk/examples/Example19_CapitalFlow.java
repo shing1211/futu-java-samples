@@ -68,6 +68,7 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
         // ── getCapitalFlow: INTRADAY ───────────────────────────────────
@@ -98,8 +99,9 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getCapitalDistribution(QotGetCapitalDistribution.Request.newBuilder().setC2S(distC2s).build());
         logger.info("getCapitalDistribution ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

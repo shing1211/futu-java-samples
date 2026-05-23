@@ -7,7 +7,7 @@ porting each example to the Java SDK's native callback-driven async model.
 **SDK:** `com.futunn.openapi:futu-api:10.6.6608` (Maven)
 **Build:** Java 25 · Maven 3.9+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
-**Examples:** 56 (00–57, missing 29 and 54)
+**Examples:** 57 (00–57, missing 29 and 54)
 
 ---
 
@@ -140,6 +140,7 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example01_MarketSn
 | 36 | `Example36_StockBasicInfo` | `getSecurityStaticInfo` — static security metadata |
 | 41 | `Example41_Rehab` | `requestRehab` — split/dividend adjustment data |
 | 42 | `Example42_CapitalDistribution` | `getCapitalDistribution` — granular capital flow |
+| 43 | `Example43_SubscribeLifecycle` | `sub` / `unsub` / `getSubInfo` — subscription lifecycle management |
 | 44 | `Example44_MultiMarketSnapshot` | `getSecuritySnapshot` across HK/US/SH/SZ markets |
 | 45 | `Example45_StockFilter` | `stockFilter` with extended filter criteria |
 | 46 | `Example46_PlateStockFilter` | `getPlateSecurity` + `stockFilter` — plate-based screener |

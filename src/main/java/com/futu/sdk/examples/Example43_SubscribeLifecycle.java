@@ -67,6 +67,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Stock list for demo
         var sec1 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
         var sec2 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("09988").build();
@@ -127,7 +128,9 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
         int usedAfter4 = queryQuota();
         logger.info("  Quota: used={} (delta={:+d})", usedAfter4, usedAfter4 - usedBefore4);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

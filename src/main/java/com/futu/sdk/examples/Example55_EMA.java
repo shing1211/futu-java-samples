@@ -80,6 +80,7 @@ public class Example55_EMA implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
         // ── requestHistoryKL: last 300 days ─────────────────────────────────
@@ -98,7 +99,9 @@ public class Example55_EMA implements FTSPI_Qot, FTSPI_Conn {
         logger.info("requestHistoryKL ret={}", ret);
 
         sleep(1500);
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

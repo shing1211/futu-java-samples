@@ -83,6 +83,9 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
             if (!fillDone) logger.warn("Fill query timed out");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            qot.close();
+            trd.close();
         }
 
         logger.info("\nDone. Summary:");
@@ -91,8 +94,6 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
         List<TrdCommon.OrderFill> fills = fillsRef.get();
         logger.info("  Deals retrieved:  {}", fills != null ? fills.size() : fillErrRef.get());
 
-        qot.close();
-        trd.close();
         System.exit(0);
     }
 

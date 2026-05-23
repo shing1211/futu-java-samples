@@ -68,6 +68,7 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── getPlateSet: CONCEPT plates for HK ─────────────────────────
         logger.info("\n=== getPlateSet: HK (CONCEPT) ===");
         var c2sCon = QotGetPlateSet.C2S.newBuilder()
@@ -77,8 +78,9 @@ public class Example13_Plate implements FTSPI_Qot, FTSPI_Conn {
         int ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(c2sCon).build());
         logger.info("getPlateSet(CONCEPT) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

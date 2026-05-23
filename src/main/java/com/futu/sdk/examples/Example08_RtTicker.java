@@ -63,6 +63,7 @@ public class Example08_RtTicker implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         String code = "00700";
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode(code).build();
 
@@ -85,8 +86,9 @@ public class Example08_RtTicker implements FTSPI_Qot, FTSPI_Conn {
         logger.info("getRT ret={}", ret);
         sleep(300);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

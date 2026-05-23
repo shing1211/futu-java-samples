@@ -79,6 +79,7 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Build subscription list
         // Market: HK_Security=1, HK_Future=7, US_Security=2, CNSH=4, CNSZ=5
         QotCommon.Security[] securities = {
@@ -136,8 +137,9 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
         logger.info("unsubscribe ret={}", ret);
 
         sleep(500);
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

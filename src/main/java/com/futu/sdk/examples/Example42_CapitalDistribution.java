@@ -68,6 +68,7 @@ public class Example42_CapitalDistribution implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         Stock[] stocks = {
             new Stock(MARKET_HK, "00700", "Tencent"),
             new Stock(MARKET_HK, "09988", "Alibaba"),
@@ -90,7 +91,9 @@ public class Example42_CapitalDistribution implements FTSPI_Qot, FTSPI_Conn {
             sleep(300);
         }
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

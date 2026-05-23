@@ -65,6 +65,7 @@ public class Example20_IpoList implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         for (int[] marketAndLabel : new int[][] { {MARKET_HK, 1}, {MARKET_US, 2} }) {
             int market = marketAndLabel[0];
             logger.info("\n=== getIpoList: {} ===", market == 1 ? "HK" : "US");
@@ -76,8 +77,9 @@ public class Example20_IpoList implements FTSPI_Qot, FTSPI_Conn {
             sleep(300);
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

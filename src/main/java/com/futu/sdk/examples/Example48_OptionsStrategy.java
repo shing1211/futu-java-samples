@@ -97,6 +97,7 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Underlying: US.NDX (Nasdaq 100 Index options)
         var owner = QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("NDX").build();
 
@@ -201,7 +202,9 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
             logger.warn("  Skipping strategy build (no underlying price)");
         }
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

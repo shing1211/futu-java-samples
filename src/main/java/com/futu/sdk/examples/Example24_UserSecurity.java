@@ -69,6 +69,7 @@ public class Example24_UserSecurity implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         String group = "MyTechStocks";
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
@@ -108,8 +109,9 @@ public class Example24_UserSecurity implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.modifyUserSecurity(QotModifyUserSecurity.Request.newBuilder().setC2S(delC2s).build());
         logger.info("modifyUserSecurity(DEL) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

@@ -68,6 +68,7 @@ public class Example28_Warrant implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         for (String code : new String[]{"00700", "HSImain"}) {
             var owner = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode(code).build();
             logger.info("\n=== getWarrant: HK.{} ===", code);
@@ -83,8 +84,9 @@ public class Example28_Warrant implements FTSPI_Qot, FTSPI_Conn {
             sleep(300);
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

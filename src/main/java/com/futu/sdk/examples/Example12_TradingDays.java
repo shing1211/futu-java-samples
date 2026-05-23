@@ -64,6 +64,7 @@ public class Example12_TradingDays implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Query trading days for each market ──────────────────────────
         int[][] markets = {
             {MARKET_HK, 1},  // index 0: HK placeholder
@@ -87,8 +88,9 @@ public class Example12_TradingDays implements FTSPI_Qot, FTSPI_Conn {
             sleep(300);
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

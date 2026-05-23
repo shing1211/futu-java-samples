@@ -123,35 +123,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
 ---
 
-### 2.3 Example43 missing from README
-
-**File:** `README.md`  
-**Issue:** `Example43_SubscribeLifecycle.java` exists on disk but is not listed in the examples table.
-
-**Fix:** Add Example43 to the README table.
-
-**Risk:** None.  
-**Effort:** Trivial.
-
----
-
-## Phase 3: Dependency & Infrastructure (Low Priority)
-
-### 3.1 Upgrade outdated dependencies
-
-| Dependency | Current | Latest | Priority |
-|---|---|---|---|
-| `dotenv-java` | 3.0.2 | 3.2.0 | Medium |
-| `junit-jupiter` | 5.11.0 | 5.12.2 | Medium |
-| `maven-shade-plugin` | 3.6.0 | 3.6.2 | Low |
-| `maven-surefire-plugin` | 3.3.0 | 3.5.5 | Low |
-| `maven-javadoc-plugin` | 3.8.0 | 3.12.0 | Low |
-
-### 3.2 Add Maven wrapper
-
-### 3.3 Add `.editorconfig`
-
-### 3.4 Add GitHub Actions CI
+### 2.3 Example43 missing from README ✅
 
 ---
 
@@ -162,18 +134,18 @@ Phase 1 (Bug Fixes) — ✅ COMPLETED 2026-05-23:
   ├── 1.5  md5() password leak          — 11 files       ✅
   ├── 1.6  InterruptedException          — 57 files       ✅
   ├── 1.4  Thread safety                — ~6 files       ✅
-  ├── 1.3  finally + close()            — 57 files       ⏳ deferred
+  ├── 1.3  finally + close()            — 57 files       ✅
   ├── 1.2  Example48 options prices     — 1 file         ✅
   └── 1.1  Example49 rewrite            — 1 file         ✅
 
 Phase 2 (Quality) — ✅ COMPLETED 2026-05-23:
   ├── 2.1  has*() null checks           — 4 files        ✅
   ├── 2.2  setClientInfo consistency    — 3 files        ✅
-  └── 2.3  Example43 in README          — 1 file         🔲
+  └── 2.3  Example43 in README          — 1 file         ✅
 
-Phase 3 (Infrastructure) — 🔲 Not started:
-  ├── 3.1  Dependency upgrades          — pom.xml
-  ├── 3.2  Maven wrapper
-  ├── 3.3  .editorconfig
-  └── 3.4  GitHub Actions CI
+Phase 3 (Infrastructure) — ✅ COMPLETED 2026-05-23:
+  ├── 3.1  Dependency upgrades          — pom.xml        ✅
+  ├── 3.2  Maven wrapper                                ✅
+  ├── 3.3  .editorconfig                                ✅
+  └── 3.4  GitHub Actions CI                            ✅
 ```

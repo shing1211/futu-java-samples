@@ -67,6 +67,7 @@ public class Example09_BrokerQueue implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Subscribe to BROKER for HK.00700 ─────────────────────────────
         logger.info("\n--- Subscribe: HK.00700 BROKER ---");
         var sec00700 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
@@ -110,8 +111,9 @@ public class Example09_BrokerQueue implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getBroker(QotGetBroker.Request.newBuilder().setC2S(brokerHSI).build());
         logger.info("getBroker(HSImain) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

@@ -68,6 +68,7 @@ public class Example17_OwnerPlate implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
         // ── getOwnerPlate ─────────────────────────────────────────────
@@ -98,8 +99,9 @@ public class Example17_OwnerPlate implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getReference(QotGetReference.Request.newBuilder().setC2S(refBullC2s).build());
         logger.info("getReference(BULL_BEAR) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

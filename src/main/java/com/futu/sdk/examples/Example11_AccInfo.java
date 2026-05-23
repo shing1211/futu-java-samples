@@ -65,6 +65,7 @@ public class Example11_AccInfo implements FTSPI_Trd, FTSPI_Conn {
         if (!ok) { logger.error("initConnect failed!"); return; }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
+        try {
         int waited = 0;
         while (!connected && waited < 8000) {
             sleep(50);
@@ -96,6 +97,9 @@ public class Example11_AccInfo implements FTSPI_Trd, FTSPI_Conn {
         var accListC2s = TrdGetAccList.C2S.newBuilder().build();
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().setC2S(accListC2s).build());
         logger.info("getAccList ret={}", ret);
+        } finally {
+            trd.close();
+        }
     }
 
     private void queryAccountInfo() {

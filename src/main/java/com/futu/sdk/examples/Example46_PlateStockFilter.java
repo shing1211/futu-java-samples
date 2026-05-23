@@ -85,6 +85,7 @@ public class Example46_PlateStockFilter implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Stage 1: Get plates for a specific stock ─────────────────────
         // HK.00700 (Tencent) - find all plates it belongs to
         logger.info("\n=== Stage 1: Get plates for HK.00700 (Tencent) ===");
@@ -169,7 +170,9 @@ public class Example46_PlateStockFilter implements FTSPI_Qot, FTSPI_Conn {
             Thread.currentThread().interrupt();
         }
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

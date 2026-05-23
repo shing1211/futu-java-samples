@@ -98,6 +98,7 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
             return;
         }
 
+        try {
         // ── Get account list (find first HK simulated account) ─────────
         logger.info("Fetching account list...");
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().build());
@@ -174,8 +175,10 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
 
         sleep(500);
 
-        qot.close();
-        trd.close();
+        } finally {
+            qot.close();
+            trd.close();
+        }
         logger.info("Done.");
     }
 

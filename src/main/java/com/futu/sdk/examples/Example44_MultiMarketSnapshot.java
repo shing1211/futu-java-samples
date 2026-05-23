@@ -79,6 +79,7 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Build security lists for each market ─────────────────────────
         // HK: Tencent, HSImain
         List<QotCommon.Security> hkSecs = new ArrayList<>();
@@ -156,7 +157,9 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
                 r.market, r.code, r.name, r.price, r.lotSize);
         }
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

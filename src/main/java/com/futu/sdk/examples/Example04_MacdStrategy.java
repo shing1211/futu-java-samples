@@ -136,6 +136,7 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
             return;
         }
 
+        try {
         // ── SIMULATE env does not require unlock ───────────────────────
         logger.info("Trade unlocked (SIMULATE mode — no password needed)");
 
@@ -181,7 +182,6 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
         if (closePrices.size() < LONG_PERIOD + SMOOTH_PERIOD) {
             logger.error("Not enough kline data ({} bars) for MACD (need {})",
                 closePrices.size(), LONG_PERIOD + SMOOTH_PERIOD);
-            qot.close(); trd.close();
             return;
         }
 
@@ -298,8 +298,10 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
         }
 
         sleep(500);
-        qot.close();
-        trd.close();
+        } finally {
+            qot.close();
+            trd.close();
+        }
         logger.info("Done.");
     }
 

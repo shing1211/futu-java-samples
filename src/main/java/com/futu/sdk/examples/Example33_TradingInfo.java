@@ -64,6 +64,7 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
         if (!ok) { logger.error("initConnect failed!"); return; }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
+        try {
         int waited = 0;
         while (!connected && waited < 8000) {
             sleep(50);
@@ -97,7 +98,9 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
         trd.getAccList(TrdGetAccList.Request.newBuilder().setC2S(accC2s).build());
         sleep(300);
 
-        trd.close();
+        } finally {
+            trd.close();
+        }
         logger.info("Done.");
     }
 

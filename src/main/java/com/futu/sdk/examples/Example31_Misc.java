@@ -67,6 +67,7 @@ public class Example31_Misc implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
         // ── Holding Change: EXECUTIVE ───────────────────────────────
@@ -110,8 +111,9 @@ public class Example31_Misc implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getUserSecurityGroup(QotGetUserSecurityGroup.Request.newBuilder().setC2S(groupC2s).build());
         logger.info("getUserSecurityGroup ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

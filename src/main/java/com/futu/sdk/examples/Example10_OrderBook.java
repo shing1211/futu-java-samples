@@ -64,6 +64,7 @@ public class Example10_OrderBook implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         String code = "00700";
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode(code).build();
 
@@ -99,8 +100,9 @@ public class Example10_OrderBook implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getOrderBook(QotGetOrderBook.Request.newBuilder().setC2S(ob50).build());
         logger.info("getOrderBook ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

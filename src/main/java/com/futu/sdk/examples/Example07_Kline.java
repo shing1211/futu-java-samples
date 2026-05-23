@@ -84,6 +84,7 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         String code = "HK.00700";
         var sec = QotCommon.Security.newBuilder()
             .setMarket(MARKET_HK)
@@ -146,8 +147,9 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
             sleep(500);
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

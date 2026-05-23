@@ -79,6 +79,7 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Step 1: getOwnerPlate for a tech-related HK ETF to find its sector plates
         // Using HK.03033 (ChinaAMC Hang Seng TECH Index ETF) as example
         logger.info("\n=== Step 1: getOwnerPlate for HK.03033 ===");
@@ -97,7 +98,9 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getPlateSet(QotGetPlateSet.Request.newBuilder().setC2S(plateSetC2s).build());
         logger.info("getPlateSet ret={}", ret);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

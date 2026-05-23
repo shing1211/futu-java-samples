@@ -66,6 +66,7 @@ public class Example36_StockBasicInfo implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── By market + type (HK stocks) ────────────────────────────────
         logger.info("\n=== getStockBasicInfo: HK STOCK (first 5) ===");
         var marketC2s = QotGetStaticInfo.C2S.newBuilder()
@@ -89,8 +90,9 @@ public class Example36_StockBasicInfo implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getStaticInfo(QotGetStaticInfo.Request.newBuilder().setC2S(codeListC2s).build());
         logger.info("getStaticInfo (code_list) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

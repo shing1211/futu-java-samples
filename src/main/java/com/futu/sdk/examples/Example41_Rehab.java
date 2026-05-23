@@ -67,6 +67,7 @@ public class Example41_Rehab implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── getRehab: HK.00700 (Tencent) ─────────────────────────────────
         logger.info("\n=== getRehab: HK.00700 ===");
         var secHk = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
@@ -86,7 +87,9 @@ public class Example41_Rehab implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.requestRehab(QotRequestRehab.Request.newBuilder().setC2S(rehabUs).build());
         logger.info("requestRehab(US.AAPL) ret={}", ret);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

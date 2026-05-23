@@ -84,6 +84,7 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ---- getGlobalState ----
         logger.info("\n--- getGlobalState ---");
         GetGlobalState.C2S gsC2s = GetGlobalState.C2S.newBuilder().setUserID(0).build();
@@ -130,7 +131,9 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
         sleep(2000);
 
         logger.info("\nDone. Close OpenD or check logs for push callbacks.");
-        qot.close();
+        } finally {
+            qot.close();
+        }
     }
 
     // -------------------------------------------------------------------------

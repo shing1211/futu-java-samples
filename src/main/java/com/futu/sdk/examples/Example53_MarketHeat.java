@@ -69,6 +69,7 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Representative basket ──────────────────────────────────────────
         QotCommon.Security[] basket = {
             QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build(),
@@ -95,7 +96,9 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getCapitalFlow(QotGetCapitalFlow.Request.newBuilder().setC2S(flowC2s).build());
         logger.info("getCapitalFlow ret={}", ret);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

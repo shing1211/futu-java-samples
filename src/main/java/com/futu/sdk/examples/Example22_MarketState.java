@@ -66,6 +66,7 @@ public class Example22_MarketState implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Build security list: HK.00700, US.AAPL, SH.600000, SZ.000001
         var sec1 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
         var sec2 = QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("AAPL").build();
@@ -81,8 +82,9 @@ public class Example22_MarketState implements FTSPI_Qot, FTSPI_Conn {
         int ret = qot.getMarketState(QotGetMarketState.Request.newBuilder().setC2S(msC2s).build());
         logger.info("getMarketState ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

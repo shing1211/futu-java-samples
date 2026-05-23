@@ -68,6 +68,7 @@ public class Example18_ReferenceStock implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         QotCommon.Security[] securities = {
             QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build(),
             QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("AAPL").build(),
@@ -97,8 +98,9 @@ public class Example18_ReferenceStock implements FTSPI_Qot, FTSPI_Conn {
             sleep(300);
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

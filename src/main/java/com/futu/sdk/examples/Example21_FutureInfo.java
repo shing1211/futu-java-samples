@@ -65,6 +65,7 @@ public class Example21_FutureInfo implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var futures = new QotCommon.Security[] {
             QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("HSImain").build(),
             QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("NQmain").build(),
@@ -80,8 +81,9 @@ public class Example21_FutureInfo implements FTSPI_Qot, FTSPI_Conn {
         int ret = qot.getFutureInfo(QotGetFutureInfo.Request.newBuilder().setC2S(c2s).build());
         logger.info("getFutureInfo ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

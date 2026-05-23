@@ -66,6 +66,7 @@ public class Example14_CurKline implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         String code = "00700";
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode(code).build();
 
@@ -86,8 +87,9 @@ public class Example14_CurKline implements FTSPI_Qot, FTSPI_Conn {
         sleep(15000);
         logger.info("Finished.");
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

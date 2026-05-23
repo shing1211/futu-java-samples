@@ -73,6 +73,7 @@ public class Example52_OptionChainFilter implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Underlying: US.NVDA (NVIDIA)
         var owner = QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("NDX").build();
 
@@ -100,7 +101,9 @@ public class Example52_OptionChainFilter implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getOptionChain(QotGetOptionChain.Request.newBuilder().setC2S(chainC2s).build());
         logger.info("getOptionChain ret={}", ret);
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

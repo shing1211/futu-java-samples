@@ -60,6 +60,7 @@ public class Example27_CodeChange implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Query code changes for multiple stocks ─────────────────────
         var codes = java.util.List.of(
             QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build(),
@@ -73,8 +74,9 @@ public class Example27_CodeChange implements FTSPI_Qot, FTSPI_Conn {
         int ret = qot.getCodeChange(QotGetCodeChange.Request.newBuilder().setC2S(c2s).build());
         logger.info("getCodeChange ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

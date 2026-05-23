@@ -78,6 +78,7 @@ public class Example23_PriceReminder implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         var sec = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
 
         // ── setPriceReminder: ADD above threshold ──────────────────────
@@ -131,8 +132,9 @@ public class Example23_PriceReminder implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.setPriceReminder(QotSetPriceReminder.Request.newBuilder().setC2S(delC2s).build());
         logger.info("setPriceReminder(DEL) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

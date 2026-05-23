@@ -69,6 +69,7 @@ public class Example16_StockQuote implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Build security list: HK.00700, HK.HSImain, US.AAPL, SH.600000, SZ.000001 ──
         var sec1 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
         var sec2 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("HSImain").build();
@@ -99,8 +100,9 @@ public class Example16_StockQuote implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getBasicQot(QotGetBasicQot.Request.newBuilder().setC2S(quoteC2s).build());
         logger.info("getBasicQot ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

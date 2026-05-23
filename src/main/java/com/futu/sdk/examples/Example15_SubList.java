@@ -67,6 +67,7 @@ public class Example15_SubList implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Subscribe to multiple stocks & subtypes ───────────────────
         logger.info("\n--- Subscribe: HK.00700 + HK.HSImain ---");
         var sec1 = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
@@ -124,8 +125,9 @@ public class Example15_SubList implements FTSPI_Qot, FTSPI_Conn {
         logger.info("getSubInfo ret={}", ret);
         sleep(300);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

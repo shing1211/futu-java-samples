@@ -86,6 +86,7 @@ public class Example47_WarrantFilter implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Underlying: HK.00700 (Tencent) and HK.HSImain (HSI futures)
         queryAndFilterWarrants("00700", "HK.00700 (Tencent)");
         sleep(1000);
@@ -117,7 +118,9 @@ public class Example47_WarrantFilter implements FTSPI_Qot, FTSPI_Conn {
             Thread.currentThread().interrupt();
         }
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 

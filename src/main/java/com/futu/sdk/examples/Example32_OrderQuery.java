@@ -74,6 +74,7 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
         if (!ok) { logger.error("initConnect failed!"); return; }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
+        try {
         int waited = 0;
         while (!connected && waited < 8000) {
             sleep(50);
@@ -110,7 +111,9 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
         logger.info("getAccList ret={}", ret);
         sleep(300);
 
-        trd.close();
+        } finally {
+            trd.close();
+        }
         logger.info("Done.");
     }
 

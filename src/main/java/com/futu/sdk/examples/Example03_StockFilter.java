@@ -80,6 +80,7 @@ public class Example03_StockFilter implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // ── Simple filter: CUR_PRICE 2-1000 HKD ─────────────────────────────────
         logger.info("\n--- SimpleFilter: CUR_PRICE 2-1000 HKD ---");
         var simpleFilter = QotStockFilter.BaseFilter.newBuilder()
@@ -141,8 +142,9 @@ public class Example03_StockFilter implements FTSPI_Qot, FTSPI_Conn {
             waited += 100;
         }
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

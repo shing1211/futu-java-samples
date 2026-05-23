@@ -74,6 +74,7 @@ public class Example25_OptionChain implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // US.NDX (Nasdaq index options)
         var owner = QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("NDX").build();
 
@@ -112,8 +113,9 @@ public class Example25_OptionChain implements FTSPI_Qot, FTSPI_Conn {
         ret = qot.getOptionChain(QotGetOptionChain.Request.newBuilder().setC2S(chainPut).build());
         logger.info("getOptionChain(PUT) ret={}", ret);
 
+        } finally {
         qot.close();
-        logger.info("Done.");
+        }
     }
 
     // -------------------------------------------------------------------------

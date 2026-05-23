@@ -103,6 +103,7 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
             return;
         }
 
+        try {
         // Use HK.00700 as default stock
         String stockCode = "HK.00700";
         int market = MARKET_HK;
@@ -167,7 +168,9 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
         logger.info("\n=== Step 5: VWAP Crossover Signal Guide ===");
         showVwapSignalGuide();
 
-        qot.close();
+        } finally {
+            qot.close();
+        }
         logger.info("Done.");
     }
 
