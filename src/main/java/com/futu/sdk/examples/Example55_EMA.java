@@ -10,6 +10,8 @@ import com.futu.openapi.pb.QotRequestHistoryKL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,12 +159,12 @@ public class Example55_EMA implements FTSPI_Qot, FTSPI_Conn {
             logger.info("\n  === EMA VALUES (last 5 bars) ===");
             int n = closes.size();
             for (int i = n - 5; i < n; i++) {
-                logger.info("    {} | close={:.2f} EMA12={:.2f} EMA26={:.2f} EMA50={:.2f} EMA200={:.2f}",
-                    times.get(i), closes.get(i),
-                    i < ema12.length ? ema12[i] : 0,
-                    i < ema26.length ? ema26[i] : 0,
-                    i < ema50.length ? ema50[i] : 0,
-                    i < ema200.length ? ema200[i] : 0);
+                logger.info("    {} | close={} EMA12={} EMA26={} EMA50={} EMA200={}",
+                    times.get(i), f2(closes.get(i)),
+                    i < ema12.length ? f2(ema12[i]) : "0",
+                    i < ema26.length ? f2(ema26[i]) : "0",
+                    i < ema50.length ? f2(ema50[i]) : "0",
+                    i < ema200.length ? f2(ema200[i]) : "0");
             }
 
             // Detect crossovers
@@ -183,8 +185,8 @@ public class Example55_EMA implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    Trend : {}", trend);
             logger.info("    Short : {} (EMA12 {} EMA26)",
                 shortTrend, curEma12 > curEma26 ? ">" : "<");
-            logger.info("    Gap   : EMA50-EMA200 = {:.2f}%",
-                curEma200 > 0 ? (curEma50 - curEma200) / curEma200 * 100 : 0);
+            logger.info("    Gap   : EMA50-EMA200 = {}%",
+                f2(curEma200 > 0 ? (curEma50 - curEma200) / curEma200 * 100 : 0));
         } else {
             logger.warn("    requestHistoryKL failed retCode={}", retCode);
         }

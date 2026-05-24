@@ -14,6 +14,8 @@ import com.futu.openapi.pb.QotUpdateKL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -206,24 +208,24 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
 
             // Show first 10 and last 5 bars
             if (i < 10 || i >= historyBars.size() - 5) {
-                logger.info("    Bar {} | {} | O={:.2f} C={:.2f} H={:.2f} L={:.2f} Vol={} | VWAP={:.4f} | Dev={:+.2f}% ({:+.4f})",
-                    i, bar.time, bar.open, bar.close, bar.high, bar.low, bar.volume,
-                    runningVwap, deviationPct, deviation);
+                logger.info("    Bar {} | {} | O={} C={} H={} L={} Vol={} | VWAP={} | Dev={}% ({})",
+                    i, bar.time, f2(bar.open), f2(bar.close), f2(bar.high), f2(bar.low), bar.volume,
+                    f4(runningVwap), signed2(deviationPct), signed4(deviation));
             }
         }
 
         double finalVwap = totalDenominator > 0 ? totalNumerator / totalDenominator : 0;
         logger.info("\n  === Overall VWAP ===");
         logger.info("    Total Volume: {}", (long) totalDenominator);
-        logger.info("    Total Turnover (approx): {:.2f}", totalNumerator);
-        logger.info("    Final VWAP: {:.4f}", finalVwap);
+        logger.info("    Total Turnover (approx): {}", f2(totalNumerator));
+        logger.info("    Final VWAP: {}", f4(finalVwap));
 
         if (!historyBars.isEmpty()) {
             BarData lastBar = historyBars.get(historyBars.size() - 1);
             double lastDeviation = lastBar.close - finalVwap;
             double lastDevPct = finalVwap > 0 ? (lastDeviation / finalVwap) * 100 : 0;
-            logger.info("    Last Close: {:.2f}", lastBar.close);
-            logger.info("    Deviation from VWAP: {:+.2f}% ({:+.4f})", lastDevPct, lastDeviation);
+            logger.info("    Last Close: {}", f2(lastBar.close));
+            logger.info("    Deviation from VWAP: {}% ({})", signed2(lastDevPct), signed4(lastDeviation));
 
             if (lastBar.close > finalVwap) {
                 logger.info("    Interpretation: Price is trading ABOVE VWAP (bullish bias)");
@@ -321,9 +323,9 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
                 historyBars.add(new BarData(
                     bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
                     bar.getHighPrice(), bar.getLowPrice(), bar.getVolume()));
-                logger.info("      {} O={:.2f} C={:.2f} H={:.2f} L={:.2f} Vol={}",
-                    bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
-                    bar.getHighPrice(), bar.getLowPrice(), bar.getVolume());
+                logger.info("      {} O={} C={} H={} L={} Vol={}",
+                    bar.getTime(), f2(bar.getOpenPrice()), f2(bar.getClosePrice()),
+                    f2(bar.getHighPrice()), f2(bar.getLowPrice()), bar.getVolume());
             }
         }
     }
@@ -341,9 +343,9 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
                 historyBars.add(new BarData(
                     bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
                     bar.getHighPrice(), bar.getLowPrice(), bar.getVolume()));
-                logger.info("      {} O={:.2f} C={:.2f} H={:.2f} L={:.2f} Vol={}",
-                    bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
-                    bar.getHighPrice(), bar.getLowPrice(), bar.getVolume());
+                logger.info("      {} O={} C={} H={} L={} Vol={}",
+                    bar.getTime(), f2(bar.getOpenPrice()), f2(bar.getClosePrice()),
+                    f2(bar.getHighPrice()), f2(bar.getLowPrice()), bar.getVolume());
             }
         } else {
             logger.warn("    requestHistoryKL failed retCode={}", retCode);
@@ -383,10 +385,10 @@ public class Example57_VWAPBenchmark implements FTSPI_Qot, FTSPI_Conn {
                 }
             }
 
-            logger.info("  [Live {}] {} time={} O={:.2f} C={:.2f} H={:.2f} L={:.2f} Vol={} | VWAP={:.4f}{}",
+            logger.info("  [Live {}] {} time={} O={} C={} H={} L={} Vol={} | VWAP={}{}",
                 getKlTypeLabel(klType), sec.getCode(), k.getTime(),
-                k.getOpenPrice(), k.getClosePrice(), k.getHighPrice(), k.getLowPrice(),
-                k.getVolume(), currentVwap, signal);
+                f2(k.getOpenPrice()), f2(k.getClosePrice()), f2(k.getHighPrice()), f2(k.getLowPrice()),
+                k.getVolume(), f4(currentVwap), signal);
 
             lastVwap = currentVwap;
             lastClosePrice = k.getClosePrice();

@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetOrderBook;
 import com.futu.openapi.pb.QotSub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 10: Order Book (get_order_book)
@@ -143,28 +144,28 @@ public class Example10_OrderBook implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    {} (bid={} ask={}):", sec.getCode(), bidCount, askCount);
             for (int i = 0; i < Math.min(bidCount, 10); i++) {
                 var b = s2c.getOrderBookBidList(i);
-                logger.info("      bid[{}] price={:.2f} vol={} count={}",
-                    i, b.getPrice(), b.getVolume(), b.getOrederCount());
+                logger.info("      bid[{}] price={} vol={} count={}",
+                    i, f2(b.getPrice()), b.getVolume(), b.getOrederCount());
             }
             for (int i = 0; i < Math.min(askCount, 10); i++) {
                 var a = s2c.getOrderBookAskList(i);
-                logger.info("      ask[{}] price={:.2f} vol={} count={}",
-                    i, a.getPrice(), a.getVolume(), a.getOrederCount());
+                logger.info("      ask[{}] price={} vol={} count={}",
+                    i, f2(a.getPrice()), a.getVolume(), a.getOrederCount());
             }
             if (bidCount > 0 && askCount > 0) {
                 var bestBid = s2c.getOrderBookBidList(0);
                 var bestAsk = s2c.getOrderBookAskList(0);
                 double spread = bestAsk.getPrice() - bestBid.getPrice();
                 double spreadPct = spread / bestBid.getPrice() * 100;
-                logger.info("    Best bid={:.2f} Best ask={:.2f} Spread={:.2f} ({:.2f}%)",
-                    bestBid.getPrice(), bestAsk.getPrice(), spread, spreadPct);
+                logger.info("    Best bid={} Best ask={} Spread={} ({})%",
+                    f2(bestBid.getPrice()), f2(bestAsk.getPrice()), f2(spread), f2(spreadPct));
             }
             // Total volume at 50 levels
             long totalBidVol = 0, totalAskVol = 0;
             for (int i = 0; i < bidCount; i++) totalBidVol += s2c.getOrderBookBidList(i).getVolume();
             for (int i = 0; i < askCount; i++) totalAskVol += s2c.getOrderBookAskList(i).getVolume();
-            logger.info("    50 levels — total bid vol={} ask vol={} ratio={:.2f}",
-                totalBidVol, totalAskVol, totalBidVol / (double) totalAskVol);
+            logger.info("    50 levels — total bid vol={} ask vol={} ratio={}",
+                totalBidVol, totalAskVol, f2(totalBidVol / (double) totalAskVol));
         } else {
             logger.warn("    getOrderBook failed retCode={}", retCode);
         }

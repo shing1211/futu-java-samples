@@ -9,6 +9,8 @@ import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -190,9 +192,9 @@ public class Example38_OrderFee implements FTSPI_Trd, FTSPI_Conn {
             int displayCount = Math.min(count, 5);
             for (int i = 0; i < displayCount; i++) {
                 var o = s2c.getOrderList(i);
-                logger.info("      [{}] order_id={} code={} side={} qty={} price={:.2f} create_time={}",
+                logger.info("      [{}] order_id={} code={} side={} qty={} price={} create_time={}",
                     i, o.getOrderID(), o.getCode(), trdSideLabel(o.getTrdSide()),
-                    o.getQty(), o.getPrice(), o.getCreateTime());
+                    o.getQty(), f2(o.getPrice()), o.getCreateTime());
                 orderIds.add(o.getOrderID());
             }
             if (count > 5) logger.info("      ... ({} more)", count - 5);
@@ -233,13 +235,13 @@ public class Example38_OrderFee implements FTSPI_Trd, FTSPI_Conn {
             logger.info("    Fee data ({} orders):", count);
             for (int i = 0; i < Math.min(count, 10); i++) {
                 var fee = s2c.getOrderFeeList(i);
-                logger.info("      [{}] order_id_ex={} fee_amount={:.2f}",
-                    i, fee.getOrderIDEx(), fee.getFeeAmount());
+                logger.info("      [{}] order_id_ex={} fee_amount={}",
+                    i, fee.getOrderIDEx(), f2(fee.getFeeAmount()));
                 int itemCount = fee.getFeeListCount();
                 for (int j = 0; j < itemCount; j++) {
                     var item = fee.getFeeList(j);
-                    logger.info("        item[{}] title={} value={:.2f}",
-                        j, item.getTitle(), item.getValue());
+                    logger.info("        item[{}] title={} value={}",
+                        j, item.getTitle(), f2(item.getValue()));
                 }
             }
             if (count > 10) logger.info("      ... ({} more)", count - 10);
@@ -256,18 +258,6 @@ public class Example38_OrderFee implements FTSPI_Trd, FTSPI_Conn {
             case 2 -> "SELL";
             default -> "SIDE(" + side + ")";
         };
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

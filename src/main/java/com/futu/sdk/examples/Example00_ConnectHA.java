@@ -240,14 +240,6 @@ public class Example00_ConnectHA implements FTSPI_Conn, FTSPI_Qot {
         }
     }
 
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-
     private static void sleep(long ms) {
         try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }

@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetBasicQot;
 import com.futu.openapi.pb.QotSub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 16: Real-time Stock Quote (get_stock_quote)
@@ -143,21 +144,21 @@ public class Example16_StockQuote implements FTSPI_Qot, FTSPI_Conn {
                 var q = s2c.getBasicQotList(i);
                 var sec = q.getSecurity();
                 logger.info("\n    === {} ({}) ===", sec.getCode(), q.getName());
-                logger.info("      curPrice={:.2f} open={:.2f} high={:.2f} low={:.2f} lastClose={:.2f}",
-                    q.getCurPrice(), q.getOpenPrice(), q.getHighPrice(),
-                    q.getLowPrice(), q.getLastClosePrice());
-                logger.info("      volume={} turnover={:.2f} turnoverRate={:.2f}% amplitude={:.2f}%",
-                    q.getVolume(), q.getTurnover(), q.getTurnoverRate(), q.getAmplitude());
+                logger.info("      curPrice={} open={} high={} low={} lastClose={}",
+                    f2(q.getCurPrice()), f2(q.getOpenPrice()), f2(q.getHighPrice()),
+                    f2(q.getLowPrice()), f2(q.getLastClosePrice()));
+                logger.info("      volume={} turnover={} turnoverRate={}% amplitude={}%",
+                    q.getVolume(), f2(q.getTurnover()), f2(q.getTurnoverRate()), f2(q.getAmplitude()));
                 logger.info("      updateTime={} suspended={}", q.getUpdateTime(), q.getIsSuspended());
                 if (q.hasPreMarket()) {
                     var pm = q.getPreMarket();
-                    logger.info("      preMarket: price={:.2f} vol={} chg={:.2f}%",
-                        pm.getPrice(), pm.getVolume(), pm.getChangeRate());
+                    logger.info("      preMarket: price={} vol={} chg={}%",
+                        f2(pm.getPrice()), pm.getVolume(), f2(pm.getChangeRate()));
                 }
                 if (q.hasAfterMarket()) {
                     var am = q.getAfterMarket();
-                    logger.info("      afterMarket: price={:.2f} vol={} chg={:.2f}%",
-                        am.getPrice(), am.getVolume(), am.getChangeRate());
+                    logger.info("      afterMarket: price={} vol={} chg={}%",
+                        f2(am.getPrice()), am.getVolume(), f2(am.getChangeRate()));
                 }
             }
         } else {

@@ -10,6 +10,8 @@ import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 /**
  * Example 53: Market Heat Analysis
  *
@@ -150,8 +152,8 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
                 if (chgPct > 0) advancing++;
                 else if (chgPct < 0) declining++;
 
-                logger.info("    {}: price={} ({:+.2f}%) range={:.2f}% vol={} turnover={}",
-                    basic.getSecurity().getCode(), cur, chgPct, rangePct,
+                logger.info("    {}: price={} ({}%) range={}% vol={} turnover={}",
+                    basic.getSecurity().getCode(), cur, signed2(chgPct), f2(rangePct),
                     basic.getVolume(), formatTurnover(basic.getTurnover()));
             }
 
@@ -171,7 +173,7 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
 
             logger.info("\n  === MARKET HEAT GAUGE ===");
             logger.info("    Advancing: {}  Declining: {}  Breadth: {:+.1f}%", advancing, declining, breadthPct);
-            logger.info("    Avg intraday range: {:.2f}%", avgRange);
+            logger.info("    Avg intraday range: {}%", f2(avgRange));
             logger.info("    Total turnover: {}", formatTurnover(totalTurnover));
             logger.info("    Heat label: {}", heatLabel);
         } else {

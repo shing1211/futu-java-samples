@@ -10,6 +10,7 @@ import com.futu.openapi.pb.QotRequestHistoryKL;
 import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 07: K-Line Data (get_cur_kline / request_history_kline)
@@ -180,9 +181,9 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
             var sec = s2c.getSecurity();
             logger.info("    security={} name={} kline_count={}", sec.getCode(), s2c.getName(), s2c.getKlListCount());
             for (var bar : s2c.getKlListList()) {
-                logger.info("      time={} open={:.2f} close={:.2f} high={:.2f} low={:.2f} vol={} turnover={}",
-                    bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
-                    bar.getHighPrice(), bar.getLowPrice(), bar.getVolume(), bar.getTurnover());
+                logger.info("      time={} open={} close={} high={} low={} vol={} turnover={}",
+                    bar.getTime(), f2(bar.getOpenPrice()), f2(bar.getClosePrice()),
+                    f2(bar.getHighPrice()), f2(bar.getLowPrice()), bar.getVolume(), bar.getTurnover());
             }
         }
     }
@@ -197,9 +198,9 @@ public class Example07_Kline implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    {} {}: {} bars (nextReqKey present={})",
                 sec.getCode(), s2c.getName(), s2c.getKlListCount(), s2c.hasNextReqKey());
             for (var bar : s2c.getKlListList()) {
-                logger.info("      {} open={:.2f} close={:.2f} high={:.2f} low={:.2f} vol={}",
-                    bar.getTime(), bar.getOpenPrice(), bar.getClosePrice(),
-                    bar.getHighPrice(), bar.getLowPrice(), bar.getVolume());
+                logger.info("      {} open={} close={} high={} low={} vol={}",
+                    bar.getTime(), f2(bar.getOpenPrice()), f2(bar.getClosePrice()),
+                    f2(bar.getHighPrice()), f2(bar.getLowPrice()), bar.getVolume());
             }
         } else {
             logger.warn("    requestHistoryKL failed retCode={}", retCode);

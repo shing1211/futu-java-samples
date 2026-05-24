@@ -8,6 +8,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetWarrant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 28: Warrant Data (get_warrant)
@@ -127,8 +128,8 @@ public class Example28_Warrant implements FTSPI_Qot, FTSPI_Conn {
                 logger.info("        type={} issuer={} strike={} maturity={}",
                     warrantTypeLabel(w.getType()), w.getIssuer(),
                     w.getStrikePrice(), w.getMaturityTime());
-                logger.info("        curPrice={:.3f} changeRate={:.2f}% vol={}",
-                    w.getCurPrice(), w.getChangeRate() * 100, w.getVolume());
+                logger.info("        curPrice={} changeRate={}% vol={}",
+                    f3(w.getCurPrice()), f2(w.getChangeRate() * 100), w.getVolume());
                 logger.info("        convRatio={} lotSize={} status={}",
                     w.getConversionRatio(), w.getLotSize(), w.getStatus());
             }

@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetRT;
 import com.futu.openapi.pb.QotGetTicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 08: Real-time Ticker & RT Data
@@ -126,8 +127,8 @@ public class Example08_RtTicker implements FTSPI_Qot, FTSPI_Conn {
                     case 2 -> "SELL";
                     default -> "NONE";
                 };
-                logger.info("      tick[{}] time={} price={:.2f} vol={} turnover={:.2f} dir={}",
-                    i, t.getTime(), t.getPrice(), t.getVolume(), t.getTurnover(), dirStr);
+                logger.info("      tick[{}] time={} price={} vol={} turnover={} dir={}",
+                    i, t.getTime(), f2(t.getPrice()), t.getVolume(), f2(t.getTurnover()), dirStr);
             }
         } else {
             logger.warn("    getTicker failed retCode={}", retCode);
@@ -145,8 +146,8 @@ public class Example08_RtTicker implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    {} ({} minute bars):", sec.getCode(), count);
             for (int i = 0; i < count; i++) {
                 var ts = s2c.getRtList(i);
-                logger.info("      rt[{}] time={} minute={} price={:.2f} vol={} turnover={:.2f}",
-                    i, ts.getTime(), ts.getMinute(), ts.getPrice(), ts.getVolume(), ts.getTurnover());
+                logger.info("      rt[{}] time={} minute={} price={} vol={} turnover={}",
+                    i, ts.getTime(), ts.getMinute(), f2(ts.getPrice()), ts.getVolume(), f2(ts.getTurnover()));
             }
         } else {
             logger.warn("    getRT failed retCode={}", retCode);

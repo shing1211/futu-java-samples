@@ -1,7 +1,6 @@
 package com.futu.sdk.examples;
 
 import com.futu.openapi.*;
-import com.futu.openapi.pb.GetGlobalState;
 import com.futu.openapi.pb.TrdCommon;
 import com.futu.openapi.pb.TrdGetAccList;
 import com.futu.openapi.pb.TrdGetHistoryOrderFillList;
@@ -9,6 +8,8 @@ import com.futu.openapi.pb.TrdGetHistoryOrderList;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -29,11 +30,10 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * SDK: FTAPI_Conn_Trd.getHistoryOrderList / getHistoryOrderFillList
  */
-public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_Qot {
+public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd {
 
     private static final Logger logger = LoggerFactory.getLogger(Example50_HistoryOrderDeal.class);
 
-    private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
     private final FTAPI_Conn_Trd trd = new FTAPI_Conn_Trd();
 
     private volatile boolean connected = false;
@@ -76,6 +76,10 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
         }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
+        int waited = 0;
+        while (!connected && waited < 8000) { sleep(50); waited += 50; }
+        if (!connected) { logger.error("Connection timed out"); return; }
+
         try {
             boolean orderDone = orderLatch.await(15, TimeUnit.SECONDS);
             boolean fillDone = fillLatch.await(15, TimeUnit.SECONDS);
@@ -84,7 +88,6 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } finally {
-            qot.close();
             trd.close();
         }
 
@@ -94,7 +97,6 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
         List<TrdCommon.OrderFill> fills = fillsRef.get();
         logger.info("  Deals retrieved:  {}", fills != null ? fills.size() : fillErrRef.get());
 
-        System.exit(0);
     }
 
     // -------------------------------------------------------------------------
@@ -110,6 +112,7 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
     @Override
     public void onDisconnect(FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
+        connected = false;
     }
 
     // -------------------------------------------------------------------------
@@ -244,27 +247,19 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
         fillLatch.countDown();
     }
 
-    // -------------------------------------------------------------------------
-    // FTSPI_Qot (unused but required by interface)
-    // -------------------------------------------------------------------------
-
-    @Override
-    public void onReply_GetGlobalState(FTAPI_Conn client, int retCode,
-                                       GetGlobalState.Response rsp) {}
-
     private void printOrders(List<TrdCommon.Order> orders) {
         if (orders.isEmpty()) {
             logger.info("  (no historical orders)");
             return;
         }
-        logger.info("  {:<12} {:<10} {:<6} {:<10} {:>10} {:>10} {:<20}",
+        logger.info("  {} {} {} {} {} {} {}",
             "order_id", "code", "side", "type", "price", "qty", "status");
         for (var o : orders) {
             String side = o.getTrdSide() == 1 ? "BUY" : "SELL";
             String type = orderTypeName(o.getOrderType());
             String status = orderStatusName(o.getOrderStatus());
-            logger.info("  {:<12} {:<10} {:<6} {:<10} {:>10.2f} {:>10.2f} {:<20}",
-                o.getOrderID(), o.getCode(), side, type, o.getPrice(), o.getQty(), status);
+            logger.info("  {} {} {} {} {} {} {}",
+                o.getOrderID(), o.getCode(), side, type, f2(o.getPrice()), f2(o.getQty()), status);
         }
     }
 
@@ -273,13 +268,13 @@ public class Example50_HistoryOrderDeal implements FTSPI_Conn, FTSPI_Trd, FTSPI_
             logger.info("  (no historical deals)");
             return;
         }
-        logger.info("  {:<12} {:<12} {:<10} {:<6} {:>10} {:>10} {:<20}",
+        logger.info("  {} {} {} {} {} {} {}",
             "fill_id", "order_id", "code", "side", "price", "qty", "create_time");
         for (var d : fills) {
             String side = d.getTrdSide() == 1 ? "BUY" : "SELL";
-            logger.info("  {:<12} {:<12} {:<10} {:<6} {:>10.2f} {:>10.2f} {:<20}",
+            logger.info("  {} {} {} {} {} {} {}",
                 d.getFillID(), d.getOrderID(), d.getCode(), side,
-                d.getPrice(), d.getQty(), d.getCreateTime());
+                f2(d.getPrice()), f2(d.getQty()), d.getCreateTime());
         }
     }
 

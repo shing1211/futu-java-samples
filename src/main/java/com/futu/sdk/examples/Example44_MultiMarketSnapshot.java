@@ -9,6 +9,8 @@ import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -153,8 +155,8 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
         // ── Summary ───────────────────────────────────────────────────────
         logger.info("\n=== Summary: {} stocks across 4 markets ===", results.size());
         for (SnapshotResult r : results) {
-            logger.info("  [{}] {} {} price={:.2f} lot={}",
-                r.market, r.code, r.name, r.price, r.lotSize);
+            logger.info("  [{}] {} {} price={} lot={}",
+                r.market, r.code, r.name, f2(r.price), r.lotSize);
         }
 
         } finally {
@@ -199,8 +201,8 @@ public class Example44_MultiMarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
                     double price = basic.getCurPrice();
                     int lotSize = basic.getLotSize();
                     String name = basic.getName();
-                    logger.info("    [{}] {} {} price={:.2f} lot={}",
-                        marketLabel, sec.getCode(), name, price, lotSize);
+                    logger.info("    [{}] {} {} price={} lot={}",
+                        marketLabel, sec.getCode(), name, f2(price), lotSize);
                     synchronized (results) {
                         results.add(new SnapshotResult(marketLabel, sec.getCode(), name, price, lotSize));
                     }

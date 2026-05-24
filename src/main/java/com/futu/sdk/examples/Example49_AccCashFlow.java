@@ -7,6 +7,7 @@ import com.futu.openapi.pb.TrdFlowSummary;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -240,18 +241,6 @@ public class Example49_AccCashFlow implements FTSPI_Trd, FTSPI_Conn {
             case 2 -> "OUT";
             default -> "DIR(" + dir + ")";
         };
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

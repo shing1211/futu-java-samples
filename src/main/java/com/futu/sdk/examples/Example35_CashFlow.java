@@ -7,6 +7,7 @@ import com.futu.openapi.pb.TrdFlowSummary;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -187,9 +188,9 @@ public class Example35_CashFlow implements FTSPI_Trd, FTSPI_Conn {
             logger.info("    Cash flow records: {}", count);
             for (int i = 0; i < Math.min(count, 10); i++) {
                 var cf = flowList.get(i);
-                logger.info("      [{}] direction={} amount={:.2f} clearing_date={} remark={}",
+                logger.info("      [{}] direction={} amount={} clearing_date={} remark={}",
                     i, cashFlowDirLabel(cf.getCashFlowDirection()),
-                    cf.getCashFlowAmount(), cf.getClearingDate(), cf.getCashFlowRemark());
+                    f2(cf.getCashFlowAmount()), cf.getClearingDate(), cf.getCashFlowRemark());
             }
             if (count > 10) logger.info("      ... ({} more)", count - 10);
             logger.info("    raw s2c: {}", s2c);
@@ -206,18 +207,6 @@ public class Example35_CashFlow implements FTSPI_Trd, FTSPI_Conn {
             case 2 -> "OUT";
             default -> "DIR(" + dir + ")";
         };
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

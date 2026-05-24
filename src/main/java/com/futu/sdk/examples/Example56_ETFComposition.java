@@ -12,6 +12,8 @@ import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -268,8 +270,8 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
             // Summary
             logger.info("\n  === ETF BASKET ANALYSIS ===");
             logger.info("    Constituents: {}", count);
-            logger.info("    Equal-weight avg price: {:.4f}", equalWeightVwap);
-            logger.info("    Turnover-weighted avg price: {:.4f}", turnoverWeightedVwap);
+            logger.info("    Equal-weight avg price: {}", f4(equalWeightVwap));
+            logger.info("    Turnover-weighted avg price: {}", f4(turnoverWeightedVwap));
             logger.info("    Total basket turnover: {}", formatTurnover(totalTurnover));
 
             // Show top 5 by turnover (proxy for weight)
@@ -294,8 +296,8 @@ public class Example56_ETFComposition implements FTSPI_Qot, FTSPI_Conn {
             // Just display first 5 from current order
             for (int i = 0; i < Math.min(5, count); i++) {
                 double weight = count > 0 ? (prices[i] / totalPrice) * 100 : 0;
-                logger.info("      [{}] {} price={:.2f} weight={:.2f}%",
-                    i + 1, codes[i], prices[i], weight);
+                logger.info("      [{}] {} price={} weight={}%",
+                    i + 1, codes[i], f2(prices[i]), f2(weight));
             }
         } else {
             logger.warn("    getSecuritySnapshot failed retCode={}", retCode);

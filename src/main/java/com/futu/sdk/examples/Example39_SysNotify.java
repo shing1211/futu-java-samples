@@ -9,6 +9,7 @@ import com.futu.openapi.pb.TrdGetAccList;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 39: System Notification Push (SysNotify via FTSPI_Conn)
@@ -154,18 +155,6 @@ public class Example39_SysNotify implements FTSPI_Conn, FTSPI_Trd {
     public void onReply_GetAccList(com.futu.openapi.FTAPI_Conn client, int retCode,
                                    TrdGetAccList.Response rsp) {
         // Not called in this demo — satisfy FTSPI_Trd interface
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

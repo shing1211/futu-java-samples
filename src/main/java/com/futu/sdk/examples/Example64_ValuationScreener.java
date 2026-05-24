@@ -42,7 +42,7 @@ public class Example64_ValuationScreener implements FTSPI_Qot, FTSPI_Conn {
         if (Config.FUTU_RSA_ENABLED && !Config.RSA_KEY_CONTENT.isEmpty()) {
             qot.setRSAPrivateKey(Config.RSA_KEY_CONTENT);
         }
-        boolean ok = qot.initConnect(Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT, Config.FUTU_RESA_ENABLED);
+        boolean ok = qot.initConnect(Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT, Config.FUTU_RSA_ENABLED);
         if (!ok) { logger.error("initConnect failed"); return; }
         logger.info("Connecting to {}:{}...", Config.FUTU_OPEND_HOST, Config.FUTU_OPEND_PORT);
 
@@ -59,9 +59,10 @@ public class Example64_ValuationScreener implements FTSPI_Qot, FTSPI_Conn {
             logger.info("getValuationDetail ret={}", ret);
             sleep(500);
 
-            logger.info("\n--- getValuationPlateStockList: SH market, low PE plate ---");
+            logger.info("\n--- getValuationPlateStockList: HK.00700 (low PE valuation plate) ---");
             var c2s2 = QotGetValuationPlateStockList.C2S.newBuilder()
-                .setPlateType(1)
+                .setSecurity(sec)
+                .setNum(20)
                 .build();
             ret = qot.getValuationPlateStockList(QotGetValuationPlateStockList.Request.newBuilder().setC2S(c2s2).build());
             logger.info("getValuationPlateStockList ret={}", ret);

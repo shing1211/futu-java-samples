@@ -8,6 +8,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetCapitalDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 42: Capital Distribution (get_capital_distribution)
@@ -136,12 +137,12 @@ public class Example42_CapitalDistribution implements FTSPI_Qot, FTSPI_Conn {
             double netBig = bigIn - bigOut;
 
             logger.info("    updateTime={}", s2c.getUpdateTime());
-            logger.info("    IN  — super={:.2f} big={:.2f} mid={:.2f} small={:.2f}",
-                superIn, bigIn, midIn, smallIn);
-            logger.info("    OUT — super={:.2f} big={:.2f}",
-                superOut, bigOut);
-            logger.info("    NET — super={:+.2f} big={:+.2f}",
-                netSuper, netBig);
+            logger.info("    IN  — super={} big={} mid={} small={}",
+                f2(superIn), f2(bigIn), f2(midIn), f2(smallIn));
+            logger.info("    OUT — super={} big={}",
+                f2(superOut), f2(bigOut));
+            logger.info("    NET — super={} big={}",
+                signed2(netSuper), signed2(netBig));
             logger.info("    full s2c={}", s2c);
         } else {
             logger.warn("    getCapitalDistribution failed retCode={}", retCode);

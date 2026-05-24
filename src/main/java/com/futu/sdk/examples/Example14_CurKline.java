@@ -9,19 +9,8 @@ import com.futu.openapi.pb.QotSub;
 import com.futu.openapi.pb.QotUpdateKL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
-/**
- * Example 14: Real-time K-Line Push (CurKline)
- *
- * Demonstrates:
- *   - subscribe: subscribe to KL_Day, KL_30M subtype
- *   - onPush_UpdateKL: handle real-time K-line bar push updates
- *   - K-line fields: open, high, low, close, volume, time
- *
- * Note: Push is continuous. Run with Thread.sleep() to observe live updates.
- *
- * Mirrors: examples/14_cur_kline/main.py from futu-python-samples
- */
 public class Example14_CurKline implements FTSPI_Qot, FTSPI_Conn {
 
     private static final Logger logger = LoggerFactory.getLogger(Example14_CurKline.class);
@@ -128,7 +117,7 @@ public class Example14_CurKline implements FTSPI_Qot, FTSPI_Conn {
         int count = s2c.getKlListCount();
         for (int i = 0; i < count; i++) {
             var k = s2c.getKlList(i);
-            logger.info("  [Kline] {} {} time={} O={:.2f} H={:.2f} L={:.2f} C={:.2f} vol={}",
+            logger.info("  [Kline] {} {} time={} O={} H={} L={} C={} vol={}",
                 sec.getCode(), label, k.getTime(),
                 k.getOpenPrice(), k.getHighPrice(), k.getLowPrice(), k.getClosePrice(),
                 k.getVolume());

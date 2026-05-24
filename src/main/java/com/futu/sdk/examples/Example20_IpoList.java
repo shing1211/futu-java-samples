@@ -8,6 +8,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetIpoList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 20: IPO List
@@ -120,12 +121,12 @@ public class Example20_IpoList implements FTSPI_Qot, FTSPI_Conn {
                         i, basic.getSecurity().getCode(), basic.getName(), basic.getListTime());
                     if (ipo.hasHkExData()) {
                         var hk = ipo.getHkExData();
-                        logger.info("        listPrice={:.2f} ipPriceRange={:.2f}-{:.2f} lotSize={}",
-                            hk.getListPrice(), hk.getIpoPriceMin(), hk.getIpoPriceMax(), hk.getLotSize());
+                        logger.info("        listPrice={} ipPriceRange={}-{} lotSize={}",
+                            f2(hk.getListPrice()), f2(hk.getIpoPriceMin()), f2(hk.getIpoPriceMax()), hk.getLotSize());
                     } else if (ipo.hasUsExData()) {
                         var us = ipo.getUsExData();
-                        logger.info("        ipPriceRange={:.2f}-{:.2f} issueSize={}",
-                            us.getIpoPriceMin(), us.getIpoPriceMax(), us.getIssueSize());
+                        logger.info("        ipPriceRange={}-{} issueSize={}",
+                            f2(us.getIpoPriceMin()), f2(us.getIpoPriceMax()), us.getIssueSize());
                     }
                 }
                 if (count > 5) logger.info("      ... ({} more)", count - 5);

@@ -7,6 +7,7 @@ import com.futu.openapi.pb.TrdGetMarginRatio;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import com.futu.openapi.pb.QotCommon;
 import java.util.List;
@@ -197,8 +198,8 @@ public class Example37_MarginRatio implements FTSPI_Trd, FTSPI_Conn {
                 var sec = mr.getSecurity();
                 logger.info("      [{}] code={} long_permit={} short_permit={}",
                     i, sec.getCode(), mr.getIsLongPermit(), mr.getIsShortPermit());
-                logger.info("        im_long_ratio={:.4f} im_short_ratio={:.4f}",
-                    mr.getImLongRatio(), mr.getImShortRatio());
+                logger.info("        im_long_ratio={} im_short_ratio={}",
+                    f4(mr.getImLongRatio()), f4(mr.getImShortRatio()));
             }
             if (count > 10) logger.info("      ... ({} more)", count - 10);
             logger.info("    raw s2c: {}", s2c);
@@ -206,18 +207,6 @@ public class Example37_MarginRatio implements FTSPI_Trd, FTSPI_Conn {
             logger.warn("    getMarginRatio failed retCode={}", retCode);
         }
         marginRatioLatch.countDown();
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

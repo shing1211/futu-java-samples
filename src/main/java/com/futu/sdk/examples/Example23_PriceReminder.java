@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetPriceReminder;
 import com.futu.openapi.pb.QotSetPriceReminder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 23: Price Reminder (set_price_reminder / get_price_reminder)
@@ -186,7 +187,7 @@ public class Example23_PriceReminder implements FTSPI_Qot, FTSPI_Conn {
                     int itemCount = pr.getItemListCount();
                     for (int j = 0; j < itemCount; j++) {
                         var item = pr.getItemList(j);
-                        logger.info("        key={} type={} freq={} value={:.2f} note={} enable={}",
+                        logger.info("        key={} type={} freq={} value={} note={} enable={}",
                             item.getKey(), reminderTypeLabel(item.getType()),
                             reminderFreqLabel(item.getFreq()), item.getValue(),
                             item.getNote(), item.getIsEnable());

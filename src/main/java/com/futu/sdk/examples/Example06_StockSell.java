@@ -10,6 +10,7 @@ import com.futu.openapi.pb.TrdPlaceOrder;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -200,7 +201,7 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
             sleep(500);
 
             if (bestBidPrice > 0) {
-                logger.info("  best bid price={:.2f}", bestBidPrice);
+                logger.info("  best bid price={}", f2(bestBidPrice));
 
                 var orderC2s = TrdPlaceOrder.C2S.newBuilder()
                     .setHeader(header)
@@ -240,6 +241,8 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
     @Override
     public void onDisconnect(FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
+        qotConnected = false;
+        trdConnected = false;
     }
 
     // -------------------------------------------------------------------------
@@ -271,8 +274,8 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
             if (bidCount > 0) {
                 var bid = bidList.get(0);
                 bestBidPrice = bid.getPrice();
-                logger.info("    best bid: price={:.2f} vol={} ordCnt={}",
-                    bestBidPrice, bid.getVolume(), bid.getOrederCount());
+                logger.info("    best bid: price={} vol={} ordCnt={}",
+                    f2(bestBidPrice), bid.getVolume(), bid.getOrederCount());
             }
         }
     }
@@ -310,18 +313,6 @@ public class Example06_StockSell implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn {
             logger.info("    orderID={} orderIDEx={}", s2c.getOrderID(), s2c.getOrderIDEx());
         } else {
             logger.warn("    placeOrder failed retCode={}", retCode);
-        }
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
         }
     }
 

@@ -11,6 +11,7 @@ import com.futu.openapi.pb.QotUpdateTicker;
 import com.futu.openapi.pb.QotUpdateBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 02: Real-time Quote Push
@@ -83,8 +84,8 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
         // Build subscription list
         // Market: HK_Security=1, HK_Future=7, US_Security=2, CNSH=4, CNSZ=5
         QotCommon.Security[] securities = {
-            QotCommon.Security.newBuilder().setMarket(1).setCode("00700").build(),   // Tencent
-            QotCommon.Security.newBuilder().setMarket(1).setCode("HSImain").build(), // HSI futures
+            QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build(),   // Tencent
+            QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("HSImain").build(), // HSI futures
         };
 
         int[] subtypes = {SUB_TYPE_BASIC, SUB_TYPE_ORDER_BOOK, SUB_TYPE_TICKER, SUB_TYPE_BROKER};
@@ -187,7 +188,7 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
             double lastClose = qot.getLastClosePrice();
             long vol = qot.getVolume();
             double chgPct = (curPrice > 0 && lastClose > 0) ? (curPrice - lastClose) / lastClose * 100 : 0;
-            logger.info("[Quote] {} @ {} ({:+.2f}%) vol={}", code, curPrice, chgPct, vol);
+            logger.info("[Quote] {} @ {} ({})% vol={}", code, curPrice, signed2(chgPct), vol);
         }
     }
 
@@ -200,8 +201,8 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
         var asks = s2c.getOrderBookAskListList();
         double bestBid = bids.isEmpty() ? 0 : bids.get(0).getPrice();
         double bestAsk = asks.isEmpty() ? 0 : asks.get(0).getPrice();
-        logger.info("[OrderBook] {} | {} bid levels, {} ask levels | best_bid={:.2f} best_ask={:.2f}",
-            code, bids.size(), asks.size(), bestBid, bestAsk);
+        logger.info("[OrderBook] {} | {} bid levels, {} ask levels | best_bid={} best_ask={}",
+            code, bids.size(), asks.size(), f2(bestBid), f2(bestAsk));
     }
 
     @Override
@@ -216,8 +217,8 @@ public class Example02_QuotePush implements FTSPI_Qot, FTSPI_Conn {
             double turnover = ticker.getTurnover();
             int dir = ticker.getDir();  // 0=none, 1=buy, 2=sell
             String dirStr = dir == 1 ? "BUY" : dir == 2 ? "SELL" : "NONE";
-            logger.info("[Ticker] {} price={} vol={} turnover={:.2f} dir={}",
-                code, price, volume, turnover, dirStr);
+            logger.info("[Ticker] {} price={} vol={} turnover={} dir={}",
+                code, price, volume, f2(turnover), dirStr);
         }
     }
 

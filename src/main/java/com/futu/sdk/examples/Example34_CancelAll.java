@@ -9,6 +9,7 @@ import com.futu.openapi.pb.TrdModifyOrder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,10 @@ public class Example34_CancelAll implements FTSPI_Trd, FTSPI_Conn {
         int ret = trd.getAccList(TrdGetAccList.Request.newBuilder().setC2S(accC2s).build());
         logger.info("getAccList ret={}", ret);
 
+        // Wait for the async callback chain to complete (getAccList → queryOrders → cancelOrders)
+        try { cancelOrderLatch.await(30, TimeUnit.SECONDS); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+
         } finally {
             trd.close();
         }
@@ -187,9 +192,9 @@ public class Example34_CancelAll implements FTSPI_Trd, FTSPI_Conn {
             logger.info("    Submitted orders ({}):", count);
             for (int i = 0; i < Math.min(count, 20); i++) {
                 var o = s2c.getOrderList(i);
-                logger.info("      order[{}] id={} code={} status={} side={} qty={} price={:.2f}",
+                logger.info("      order[{}] id={} code={} status={} side={} qty={} price={}",
                     i, o.getOrderID(), o.getCode(), orderStatusLabel(o.getOrderStatus()),
-                    trdSideLabel(o.getTrdSide()), o.getQty(), o.getPrice());
+                    trdSideLabel(o.getTrdSide()), o.getQty(), f2(o.getPrice()));
                 logger.info("        createTime={} updateTime={} fillQty={}",
                     o.getCreateTime(), o.getUpdateTime(), o.getFillQty());
                 pendingOrderIds.add(o.getOrderID());
@@ -259,18 +264,6 @@ public class Example34_CancelAll implements FTSPI_Trd, FTSPI_Conn {
             case 2 -> "SELL";
             default -> "SIDE(" + side + ")";
         };
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
-        }
     }
 
     private static void sleep(long ms) {

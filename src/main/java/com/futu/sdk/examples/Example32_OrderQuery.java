@@ -11,6 +11,7 @@ import com.futu.openapi.pb.TrdGetOrderList;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 32: Order & Deal Query
@@ -230,11 +231,11 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             logger.info("    Orders ({}):", count);
             for (int i = 0; i < Math.min(count, 5); i++) {
                 var o = s2c.getOrderList(i);
-                logger.info("      order[{}] id={} code={} status={} side={} qty={} price={:.2f}",
+                logger.info("      order[{}] id={} code={} status={} side={} qty={} price={}",
                     i, o.getOrderID(), o.getCode(), orderStatusLabel(o.getOrderStatus()),
-                    trdSideLabel(o.getTrdSide()), o.getQty(), o.getPrice());
-                logger.info("        createTime={} updateTime={} fillQty={} fillAvgPrice={:.2f} name={}",
-                    o.getCreateTime(), o.getUpdateTime(), o.getFillQty(), o.getFillAvgPrice(), o.getName());
+                    trdSideLabel(o.getTrdSide()), o.getQty(), f2(o.getPrice()));
+                logger.info("        createTime={} updateTime={} fillQty={} fillAvgPrice={} name={}",
+                    o.getCreateTime(), o.getUpdateTime(), o.getFillQty(), f2(o.getFillAvgPrice()), o.getName());
             }
             if (count > 5) logger.info("      ... ({} more)", count - 5);
         } else {
@@ -252,9 +253,9 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             logger.info("    Fills ({}):", count);
             for (int i = 0; i < Math.min(count, 5); i++) {
                 var f = s2c.getOrderFillList(i);
-                logger.info("      fill[{}] id={} code={} side={} qty={} price={:.2f} time={}",
+                logger.info("      fill[{}] id={} code={} side={} qty={} price={} time={}",
                     i, f.getFillID(), f.getCode(), trdSideLabel(f.getTrdSide()),
-                    f.getQty(), f.getPrice(), f.getCreateTime());
+                    f.getQty(), f2(f.getPrice()), f.getCreateTime());
                 logger.info("        orderID={} name={}", f.getOrderID(), f.getName());
             }
             if (count > 5) logger.info("      ... ({} more)", count - 5);
@@ -289,18 +290,6 @@ public class Example32_OrderQuery implements FTSPI_Trd, FTSPI_Conn {
             case 6 -> "SELL_LONG";
             default -> "SIDE(" + side + ")";
         };
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 not available", e);
-        }
     }
 
     private static void sleep(long ms) {

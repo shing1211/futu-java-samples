@@ -10,6 +10,7 @@ import com.futu.openapi.pb.QotGetUserSecurityGroup;
 import com.futu.openapi.pb.QotRequestRehab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 31: Misc — Holding Changes, Rehab, User Security Groups
@@ -149,10 +150,10 @@ public class Example31_Misc implements FTSPI_Qot, FTSPI_Conn {
                 logger.info("    Records ({}):", count);
                 for (int i = 0; i < Math.min(count, 10); i++) {
                     var h = s2c.getHoldingChangeList(i);
-                    logger.info("      [{}] holder={} time={} holdingQty={} holdingRatio={:.2f}% changeQty={} changeRatio={:.2f}%",
+                    logger.info("      [{}] holder={} time={} holdingQty={} holdingRatio={}% changeQty={} changeRatio={}%",
                         i, h.getHolderName(), h.getTime(),
-                        h.getHoldingQty(), h.getHoldingRatio() * 100,
-                        h.getChangeQty(), h.getChangeRatio() * 100);
+                        h.getHoldingQty(), f2(h.getHoldingRatio() * 100),
+                        h.getChangeQty(), f2(h.getChangeRatio() * 100));
                 }
                 if (count > 10) logger.info("      ... ({} more)", count - 10);
             }
@@ -171,9 +172,9 @@ public class Example31_Misc implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    Rehab records ({}):", count);
             for (int i = 0; i < Math.min(count, 10); i++) {
                 var r = s2c.getRehabList(i);
-                logger.info("      [{}] time={} dividend={:.4f} splitBase={}/{} fwdFactorA={:.6f} bwdFactorA={:.6f}",
-                    i, r.getTime(), r.getDividend(), r.getSplitBase(), r.getSplitErt(),
-                    r.getFwdFactorA(), r.getBwdFactorA());
+                logger.info("      [{}] time={} dividend={} splitBase={}/{} fwdFactorA={} bwdFactorA={}",
+                    i, r.getTime(), f4(r.getDividend()), r.getSplitBase(), r.getSplitErt(),
+                    f6(r.getFwdFactorA()), f6(r.getBwdFactorA()));
             }
             if (count > 10) logger.info("      ... ({} more)", count - 10);
         } else {

@@ -9,6 +9,8 @@ import com.futu.openapi.pb.QotGetWarrant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -187,13 +189,13 @@ public class Example47_WarrantFilter implements FTSPI_Qot, FTSPI_Conn {
                 logger.info("        type={} issuer={} strike={} maturity={}",
                     warrantTypeLabel(w.getType()), w.getIssuer(),
                     formatStrike(w.getStrikePrice()), w.getMaturityTime());
-                logger.info("        curPrice={:.4f} changeRate={:.2f}% volume={}",
-                    w.getCurPrice(), w.getChangeRate() * 100, w.getVolume());
-                logger.info("        delta={:.4f} impliedVol={:.4f} effLev={:.2f}",
-                    w.getDelta(), w.getImpliedVolatility(), w.getEffectiveLeverage());
-                logger.info("        convRatio={} lotSize={} premium={:.2f}% status={}",
+                logger.info("        curPrice={} changeRate={}% volume={}",
+                    f4(w.getCurPrice()), f2(w.getChangeRate() * 100), w.getVolume());
+                logger.info("        delta={} impliedVol={} effLev={}",
+                    f4(w.getDelta()), f4(w.getImpliedVolatility()), f2(w.getEffectiveLeverage()));
+                logger.info("        convRatio={} lotSize={} premium={}% status={}",
                     w.getConversionRatio(), w.getLotSize(),
-                    w.getPremium() * 100, w.getStatus());
+                    f2(w.getPremium() * 100), w.getStatus());
             }
             if (count > 10) {
                 logger.info("      ... ({} more)", count - 10);

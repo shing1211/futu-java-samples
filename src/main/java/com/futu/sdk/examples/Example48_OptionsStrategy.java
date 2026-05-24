@@ -11,6 +11,8 @@ import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.futu.sdk.examples.Helpers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -114,7 +116,7 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
 
         try { queryLatch.await(5, TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
-        logger.info("  Underlying NDX price: {:.2f}", underlyingPrice);
+        logger.info("  Underlying NDX price: {}", f2(underlyingPrice));
 
         // ── Step 2: Get expiration dates ───────────────────────────────────
         logger.info("\n=== Step 2: Get option expiration dates for US.NDX ===");
@@ -259,19 +261,19 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
         double netTheta = longCall.theta - shortCall.theta;
         double netVega = longCall.vega - shortCall.vega;
 
-        logger.info("  Long Call:  {} strike={:.2f} price={:.4f} delta={:.4f}",
-            longCall.code, longCall.strike, longCall.price, longCall.delta);
-        logger.info("  Short Call: {} strike={:.2f} price={:.4f} delta={:.4f}",
-            shortCall.code, shortCall.strike, shortCall.price, shortCall.delta);
+        logger.info("  Long Call:  {} strike={} price={} delta={}",
+            longCall.code, f2(longCall.strike), f4(longCall.price), f4(longCall.delta));
+        logger.info("  Short Call: {} strike={} price={} delta={}",
+            shortCall.code, f2(shortCall.strike), f4(shortCall.price), f4(shortCall.delta));
         logger.info("  ─────────────────────────────");
-        logger.info("  Net Debit:     {:.4f}", netDebit);
-        logger.info("  Break-even:    {:.2f}", breakEven);
-        logger.info("  Max Profit:   {:.4f} (if price > {:.2f} at expiry)",
-            maxProfit, shortCall.strike);
-        logger.info("  Max Loss:     {:.4f} (if price < {:.2f} at expiry)",
-            maxLoss, longCall.strike);
-        logger.info("  Net Greeks:  delta={:.4f} gamma={:.6f} theta={:.4f} vega={:.4f}",
-            netDelta, netGamma, netTheta, netVega);
+        logger.info("  Net Debit:     {}", f4(netDebit));
+        logger.info("  Break-even:    {}", f2(breakEven));
+        logger.info("  Max Profit:   {} (if price > {} at expiry)",
+            f4(maxProfit), f2(shortCall.strike));
+        logger.info("  Max Loss:     {} (if price < {} at expiry)",
+            f4(maxLoss), f2(longCall.strike));
+        logger.info("  Net Greeks:  delta={} gamma={} theta={} vega={}",
+            f4(netDelta), f6(netGamma), f4(netTheta), f4(netVega));
     }
 
     private void buildBearPutSpread() {
@@ -301,19 +303,19 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
         double netTheta = longPut.theta - shortPut.theta;
         double netVega = longPut.vega - shortPut.vega;
 
-        logger.info("  Long Put:  {} strike={:.2f} price={:.4f} delta={:.4f}",
-            longPut.code, longPut.strike, longPut.price, longPut.delta);
-        logger.info("  Short Put: {} strike={:.2f} price={:.4f} delta={:.4f}",
-            shortPut.code, shortPut.strike, shortPut.price, shortPut.delta);
+        logger.info("  Long Put:  {} strike={} price={} delta={}",
+            longPut.code, f2(longPut.strike), f4(longPut.price), f4(longPut.delta));
+        logger.info("  Short Put: {} strike={} price={} delta={}",
+            shortPut.code, f2(shortPut.strike), f4(shortPut.price), f4(shortPut.delta));
         logger.info("  ─────────────────────────────");
-        logger.info("  Net Debit:     {:.4f}", netDebit);
-        logger.info("  Break-even:    {:.2f}", breakEven);
-        logger.info("  Max Profit:   {:.4f} (if price < {:.2f} at expiry)",
-            maxProfit, shortPut.strike);
-        logger.info("  Max Loss:     {:.4f} (if price > {:.2f} at expiry)",
-            maxLoss, longPut.strike);
-        logger.info("  Net Greeks:  delta={:.4f} gamma={:.6f} theta={:.4f} vega={:.4f}",
-            netDelta, netGamma, netTheta, netVega);
+        logger.info("  Net Debit:     {}", f4(netDebit));
+        logger.info("  Break-even:    {}", f2(breakEven));
+        logger.info("  Max Profit:   {} (if price < {} at expiry)",
+            f4(maxProfit), f2(shortPut.strike));
+        logger.info("  Max Loss:     {} (if price > {} at expiry)",
+            f4(maxLoss), f2(longPut.strike));
+        logger.info("  Net Greeks:  delta={} gamma={} theta={} vega={}",
+            f4(netDelta), f6(netGamma), f4(netTheta), f4(netVega));
     }
 
     // -------------------------------------------------------------------------
@@ -352,12 +354,12 @@ public class Example48_OptionsStrategy implements FTSPI_Qot, FTSPI_Conn {
                     double gamma = opt.getGamma();
                     double theta = opt.getTheta();
                     double vega = opt.getVega();
-                    logger.info("    Option: {} price={:.4f} delta={:.4f} gamma={:.6f} theta={:.4f} vega={:.4f}",
-                        code, price, delta, gamma, theta, vega);
+                    logger.info("    Option: {} price={} delta={} gamma={} theta={} vega={}",
+                        code, f4(price), f4(delta), f6(gamma), f4(theta), f4(vega));
                     updateLegData(code, price, delta, gamma, theta, vega);
                 } else {
                     underlyingPrice = basic.getCurPrice();
-                    logger.info("    Underlying: {} price={:.2f}", basic.getSecurity().getCode(), underlyingPrice);
+                    logger.info("    Underlying: {} price={}", basic.getSecurity().getCode(), f2(underlyingPrice));
                 }
             }
         } else {

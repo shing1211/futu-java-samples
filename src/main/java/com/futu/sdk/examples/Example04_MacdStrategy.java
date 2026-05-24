@@ -12,6 +12,7 @@ import com.futu.openapi.pb.TrdUnlockTrade;
 import com.futu.openapi.pb.TrdGetFunds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.time.LocalDate;
 import java.util.concurrent.CountDownLatch;
@@ -205,8 +206,8 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
         double prevSignal = signal[signal.length - 2];
         double latestHist = latestMacd - latestSignal;
 
-        logger.info("MACD: macd={:.4f} signal={:.4f} hist={:.4f}", latestMacd, latestSignal, latestHist);
-        logger.info("Prev: macd={:.4f} signal={:.4f}", prevMacd, prevSignal);
+        logger.info("MACD: macd={} signal={} hist={}", f4(latestMacd), f4(latestSignal), f4(latestHist));
+        logger.info("Prev: macd={} signal={}", f4(prevMacd), f4(prevSignal));
 
         // ── Check positions ───────────────────────────────────────────
         logger.info("\n--- Portfolio Check ---");
@@ -234,7 +235,7 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
                 sleep(500);
 
                 if (lastSnapshotPrice > 0) {
-                    logger.info("  Current price: {:.2f} | lot_size: {}", lastSnapshotPrice, lotSize);
+                    logger.info("  Current price: {} | lot_size: {}", f2(lastSnapshotPrice), lotSize);
 
                     var orderC2s = TrdPlaceOrder.C2S.newBuilder()
                         .setHeader(header)
@@ -267,12 +268,12 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
 
             if (lastSnapshotPrice > 0 && lotSize > 0) {
                 double buyingPower = lastFundsPower;
-                logger.info("  Buying power: {:.2f}", buyingPower);
-                logger.info("  Current price: {:.2f} | lot_size: {}", lastSnapshotPrice, lotSize);
+                logger.info("  Buying power: {}", f2(buyingPower));
+                logger.info("  Current price: {} | lot_size: {}", f2(lastSnapshotPrice), lotSize);
 
                 long qty = (long) (buyingPower / lastSnapshotPrice);
                 qty = (qty / lotSize) * lotSize;
-                logger.info("  Calculated qty: {} (buying_power={:.2f} / price={:.2f})", qty, buyingPower, lastSnapshotPrice);
+                logger.info("  Calculated qty: {} (buying_power={} / price={})", qty, f2(buyingPower), f2(lastSnapshotPrice));
 
                 if (qty >= lotSize) {
                     var orderC2s = TrdPlaceOrder.C2S.newBuilder()
@@ -292,7 +293,7 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
                 }
             }
         } else {
-            logger.info("\n>>> No signal (MACD={:.4f}, Signal={:.4f}) — holding{}",
+            logger.info("\n>>> No signal (MACD={}, Signal={}) — holding{}", f4(latestMacd), f4(latestSignal),
                 latestMacd, latestSignal,
                 hasPosition ? " " + currentPositionQty + " shares" : "");
         }
@@ -332,6 +333,8 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
     @Override
     public void onDisconnect(FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
+        qotConnected = false;
+        trdConnected = false;
     }
 
     // -------------------------------------------------------------------------
@@ -348,8 +351,8 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
                 var basic = snap.getBasic();
                 lastSnapshotPrice = basic.getCurPrice();
                 lotSize = basic.getLotSize();
-                logger.info("    {} name={} last_price={:.2f} lot_size={}",
-                    basic.getSecurity().getCode(), basic.getName(), basic.getCurPrice(), lotSize);
+                logger.info("    {} name={} last_price={} lot_size={}",
+                    basic.getSecurity().getCode(), basic.getName(), f2(basic.getCurPrice()), lotSize);
             }
         }
         snapshotLatch.countDown();
@@ -367,7 +370,7 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
             closePrices.clear();
             for (var bar : s2c.getKlListList()) {
                 closePrices.add(bar.getClosePrice());
-                logger.info("      {} close={:.2f}", bar.getTime(), bar.getClosePrice());
+                logger.info("      {} close={}", bar.getTime(), f2(bar.getClosePrice()));
             }
         } else {
             logger.warn("    requestHistoryKL failed retCode={}", retCode);
@@ -405,9 +408,9 @@ public class Example04_MacdStrategy implements FTSPI_Qot, FTSPI_Trd, FTSPI_Conn 
             } else {
                 logger.info("    Positions ({} rows):", list.size());
                 for (var pos : list) {
-                    logger.info("      {} {} qty={} price={:.2f} cost={:.2f}",
+                    logger.info("      {} {} qty={} price={} cost={}",
                         pos.getCode(), pos.getName(), (long) pos.getQty(),
-                        pos.getPrice(), pos.getCostPrice());
+                        f2(pos.getPrice()), f2(pos.getCostPrice()));
                     if ("00700".equals(pos.getCode())) {
                         currentPositionQty = (int) pos.getQty();
                         hasPosition = currentPositionQty > 0;

@@ -16,6 +16,7 @@ import com.futu.openapi.pb.TrdGetPositionList;
 import com.futu.openapi.pb.TrdPlaceOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 05: Quote + Trade (BUY order)
@@ -147,7 +148,7 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
         // ── Place a BUY order (SIMULATE) ──────────────────────────────
         // Note: SIMULATE env does not require unlock. REAL env requires unlockTrade.
         if (lastSnapshotPrice > 0 && lotSize > 0) {
-            logger.info("\n--- place_order: BUY HK.00700 at {:.2f} (simulate) ---", lastSnapshotPrice);
+            logger.info("\n--- place_order: BUY HK.00700 at {} (simulate) ---", f2(lastSnapshotPrice));
             double buyingPower = lastFundsPower;
 
             // Calculate qty: floor(buying_power / price) rounded down to nearest lot
@@ -168,8 +169,8 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
                 ret = trd.placeOrder(TrdPlaceOrder.Request.newBuilder().setC2S(orderC2s).build());
                 logger.info("placeOrder ret={}", ret);
             } else {
-                logger.info("Insufficient buying power. power={:.2f} price={:.2f} → qty={} < lot_size={}",
-                    buyingPower, lastSnapshotPrice, qty, lotSize);
+                logger.info("Insufficient buying power. power={} price={} → qty={} < lot_size={}",
+                    f2(buyingPower), f2(lastSnapshotPrice), qty, lotSize);
             }
         }
 
@@ -208,6 +209,8 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
     @Override
     public void onDisconnect(com.futu.openapi.FTAPI_Conn client, long errCode) {
         logger.info("  [Conn] onDisconnect: errCode={}", errCode);
+        qotConnected = false;
+        trdConnected = false;
     }
 
     // -------------------------------------------------------------------------
@@ -248,9 +251,9 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
                 logger.info("    No positions");
             } else {
                 for (var pos : list) {
-                    logger.info("    {} {} qty={} price={:.2f} cost={:.2f}",
+                    logger.info("    {} {} qty={} price={} cost={}",
                         pos.getCode(), pos.getName(), (long) pos.getQty(),
-                        pos.getPrice(), pos.getCostPrice());
+                        f2(pos.getPrice()), f2(pos.getCostPrice()));
                 }
             }
         }
@@ -286,9 +289,9 @@ public class Example05_QuoteTrade implements FTSPI_Qot, FTSPI_Conn, FTSPI_Trd {
                 double changeRate = (exData != null && basic.getLastClosePrice() > 0)
                     ? (basic.getCurPrice() - basic.getLastClosePrice()) / basic.getLastClosePrice() * 100
                     : 0;
-                logger.info("    {} name={} last_price={:.2f} lot_size={} change={:.2f}% open={:.2f} high={:.2f} low={:.2f}",
-                    basic.getSecurity().getCode(), basic.getName(), basic.getCurPrice(), lotSize,
-                    changeRate, basic.getOpenPrice(), basic.getHighPrice(), basic.getLowPrice());
+                logger.info("    {} name={} last_price={} lot_size={} change={}% open={} high={} low={}",
+                    basic.getSecurity().getCode(), basic.getName(), f2(basic.getCurPrice()), lotSize,
+                    f2(changeRate), f2(basic.getOpenPrice()), f2(basic.getHighPrice()), f2(basic.getLowPrice()));
             }
         }
     }

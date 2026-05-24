@@ -10,6 +10,7 @@ import com.futu.openapi.pb.TrdGetMaxTrdQtys;
 import com.futu.openapi.pb.TrdUnlockTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 33: Account Trading Info (getMaxTrdQtys)
@@ -151,7 +152,7 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
         // The response MaxTrdQtys will show both buy/sell sides
         String code = "00700";
         double price = 400.0;
-        logger.info("\n=== getMaxTrdQtys: HK.{} @ {:.2f} ===", code, price);
+        logger.info("\n=== getMaxTrdQtys: HK.{} @ {} ===", code, f2(price));
         var c2s = TrdGetMaxTrdQtys.C2S.newBuilder()
             .setHeader(header)
             .setOrderType(ORDER_TYPE_NORMAL)
@@ -173,26 +174,14 @@ public class Example33_TradingInfo implements FTSPI_Trd, FTSPI_Conn {
                 return;
             }
             var qtys = s2c.getMaxTrdQtys();
-            logger.info("    maxCashBuy={:.0f} maxCashAndMarginBuy={:.0f}",
-                qtys.getMaxCashBuy(), qtys.getMaxCashAndMarginBuy());
-            logger.info("    maxPositionSell={:.0f} maxSellShort={:.0f} maxBuyBack={:.0f}",
-                qtys.getMaxPositionSell(), qtys.getMaxSellShort(), qtys.getMaxBuyBack());
-            logger.info("    longRequiredIM={:.2f} shortRequiredIM={:.2f}",
-                qtys.getLongRequiredIM(), qtys.getShortRequiredIM());
+            logger.info("    maxCashBuy={} maxCashAndMarginBuy={}",
+                f0(qtys.getMaxCashBuy()), f0(qtys.getMaxCashAndMarginBuy()));
+            logger.info("    maxPositionSell={} maxSellShort={} maxBuyBack={}",
+                f0(qtys.getMaxPositionSell()), f0(qtys.getMaxSellShort()), f0(qtys.getMaxBuyBack()));
+            logger.info("    longRequiredIM={} shortRequiredIM={}",
+                f2(qtys.getLongRequiredIM()), f2(qtys.getShortRequiredIM()));
         } else {
             logger.warn("    getMaxTrdQtys failed retCode={}", retCode);
-        }
-    }
-
-    private static String md5(String input) {
-        try {
-            var md = java.security.MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input.getBytes());
-            var sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("MD5 hashing failed", e);
         }
     }
 

@@ -6,9 +6,11 @@ import com.futu.openapi.FTSPI_Conn;
 import com.futu.openapi.FTSPI_Qot;
 import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetSubInfo;
+import com.futu.openapi.pb.QotRequestHistoryKLQuota;
 import com.futu.openapi.pb.QotSub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 43: Subscription Lifecycle (subscribe / unsubscribe / query_subscription)
@@ -29,6 +31,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
 
     private final FTAPI_Conn_Qot qot = new FTAPI_Conn_Qot();
     private volatile boolean connected = false;
+    private java.util.function.Consumer<Integer> quotaCallback;
 
     // Market: HK=1
     private static final int MARKET_HK = 1;
@@ -165,6 +168,20 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
         // Logged in queryQuota already
     }
 
+    @Override
+    public void onReply_RequestHistoryKLQuota(com.futu.openapi.FTAPI_Conn client, int retCode,
+                                               QotRequestHistoryKLQuota.Response rsp) {
+        if (retCode == 0 && rsp.hasS2C()) {
+            var s2c = rsp.getS2C();
+            int used = s2c.getUsedQuota();
+            int remain = s2c.getRemainQuota();
+            logger.info("  [Quota] used={} remain={} total={}", used, remain, used + remain);
+            if (quotaCallback != null) quotaCallback.accept(used);
+        } else {
+            if (quotaCallback != null) quotaCallback.accept(-1);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
@@ -200,15 +217,14 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
      * Uses isReqAllConn=false (current connection only).
      */
     private int queryQuota() {
-        var c2s = QotGetSubInfo.C2S.newBuilder()
-            .setIsReqAllConn(false)
-            .build();
-        int ret = qot.getSubInfo(QotGetSubInfo.Request.newBuilder().setC2S(c2s).build());
-        logger.info("  getSubInfo ret={}", ret);
-        sleep(200);
-        // The callback onReply_GetSubInfo logs the quota — return -1 since
-        // callback sets shared state (simplified for this demo)
-        return -1;  // actual value logged in callback
+        var ref = new java.util.concurrent.atomic.AtomicInteger(-1);
+        var latch = new java.util.concurrent.CountDownLatch(1);
+        quotaCallback = (value) -> { ref.set(value); latch.countDown(); };
+        qot.requestHistoryKLQuota(QotRequestHistoryKLQuota.Request.newBuilder()
+            .setC2S(QotRequestHistoryKLQuota.C2S.newBuilder().build()).build());
+        try { latch.await(5, java.util.concurrent.TimeUnit.SECONDS); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        return ref.get();
     }
 
     private static void sleep(long ms) {

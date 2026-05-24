@@ -8,6 +8,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetTopTenBuySellBrokers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 65: Top Ten Buy/Sell Brokers
@@ -49,7 +50,7 @@ public class Example65_TopTenBrokers implements FTSPI_Qot, FTSPI_Conn {
 
         try {
             var secHk = QotCommon.Security.newBuilder().setMarket(MARKET_HK).setCode("00700").build();
-            var secUs = QotCommon.Security.newBuilder().setMarket(2).setCode("AAPL").build();
+            var secUs = QotCommon.Security.newBuilder().setMarket(MARKET_US).setCode("AAPL").build();
 
             logger.info("\n--- getTopTenBuySellBrokers: HK.00700 ---");
             var c2s = QotGetTopTenBuySellBrokers.C2S.newBuilder()

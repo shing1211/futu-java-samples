@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetCapitalDistribution;
 import com.futu.openapi.pb.QotGetCapitalFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 19: Capital Flow & Distribution
@@ -134,10 +135,10 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
             logger.info("    Flow items ({} bars): lastValidTime={}", count, s2c.getLastValidTime());
             for (int i = Math.max(0, count - 5); i < count; i++) {
                 var item = s2c.getFlowItemList(i);
-                logger.info("      [{}] inFlow={:.2f} main={:.2f} super={:.2f} big={:.2f} mid={:.2f} sml={:.2f}",
-                    item.getTime(), item.getInFlow(), item.getMainInFlow(),
-                    item.getSuperInFlow(), item.getBigInFlow(),
-                    item.getMidInFlow(), item.getSmlInFlow());
+                logger.info("      [{}] inFlow={} main={} super={} big={} mid={} sml={}",
+                    item.getTime(), f2(item.getInFlow()), f2(item.getMainInFlow()),
+                    f2(item.getSuperInFlow()), f2(item.getBigInFlow()),
+                    f2(item.getMidInFlow()), f2(item.getSmlInFlow()));
             }
         } else {
             logger.warn("    getCapitalFlow failed retCode={}", retCode);
@@ -151,18 +152,18 @@ public class Example19_CapitalFlow implements FTSPI_Qot, FTSPI_Conn {
         if (retCode == 0 && rsp.hasS2C()) {
             var s2c = rsp.getS2C();
             logger.info("    Update time: {}", s2c.getUpdateTime());
-            logger.info("    IN  — super={:.2f} big={:.2f} mid={:.2f} small={:.2f}",
-                s2c.getCapitalInSuper(), s2c.getCapitalInBig(),
-                s2c.getCapitalInMid(), s2c.getCapitalInSmall());
-            logger.info("    OUT — super={:.2f} big={:.2f} mid={:.2f} small={:.2f}",
-                s2c.getCapitalOutSuper(), s2c.getCapitalOutBig(),
-                s2c.getCapitalOutMid(), s2c.getCapitalOutSmall());
+            logger.info("    IN  — super={} big={} mid={} small={}",
+                f2(s2c.getCapitalInSuper()), f2(s2c.getCapitalInBig()),
+                f2(s2c.getCapitalInMid()), f2(s2c.getCapitalInSmall()));
+            logger.info("    OUT — super={} big={} mid={} small={}",
+                f2(s2c.getCapitalOutSuper()), f2(s2c.getCapitalOutBig()),
+                f2(s2c.getCapitalOutMid()), f2(s2c.getCapitalOutSmall()));
             double netSuper = s2c.getCapitalInSuper() - s2c.getCapitalOutSuper();
             double netBig = s2c.getCapitalInBig() - s2c.getCapitalOutBig();
             double netMid = s2c.getCapitalInMid() - s2c.getCapitalOutMid();
             double netSml = s2c.getCapitalInSmall() - s2c.getCapitalOutSmall();
-            logger.info("    NET — super={:.2f} big={:.2f} mid={:.2f} small={:.2f}",
-                netSuper, netBig, netMid, netSml);
+            logger.info("    NET — super={} big={} mid={} small={}",
+                f2(netSuper), f2(netBig), f2(netMid), f2(netSml));
         } else {
             logger.warn("    getCapitalDistribution failed retCode={}", retCode);
         }
