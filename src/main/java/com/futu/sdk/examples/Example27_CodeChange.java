@@ -5,6 +5,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetCodeChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 27: Stock Code Change (get_code_change)

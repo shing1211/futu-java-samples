@@ -8,6 +8,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotGetReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 18: Reference Stock List

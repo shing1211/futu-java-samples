@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetOptionVolatility;
 import com.futu.openapi.pb.QotGetOptionExerciseProbability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 54: Options Analytics — Implied Volatility & Exercise Probability

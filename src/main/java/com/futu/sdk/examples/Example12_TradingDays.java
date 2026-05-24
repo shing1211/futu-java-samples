@@ -7,6 +7,7 @@ import com.futu.openapi.FTSPI_Qot;
 import com.futu.openapi.pb.QotRequestTradeDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 12: Trading Days Calendar

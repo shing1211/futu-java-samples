@@ -4,6 +4,7 @@ import com.futu.openapi.*;
 import com.futu.openapi.pb.GetGlobalState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;

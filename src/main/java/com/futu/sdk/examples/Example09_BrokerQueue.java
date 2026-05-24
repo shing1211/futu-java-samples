@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetBroker;
 import com.futu.openapi.pb.QotSub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 09: Broker Queue

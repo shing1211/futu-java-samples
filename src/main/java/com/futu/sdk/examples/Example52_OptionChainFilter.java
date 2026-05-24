@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetOptionChain;
 import com.futu.openapi.pb.QotGetOptionExpirationDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 52: Option Chain with Data Filters

@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetDailyShortVolume;
 import com.futu.openapi.pb.QotGetShortInterest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 63: Short Volume & Interest

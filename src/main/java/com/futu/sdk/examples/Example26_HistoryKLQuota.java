@@ -5,6 +5,7 @@ import com.futu.openapi.pb.QotCommon;
 import com.futu.openapi.pb.QotRequestHistoryKLQuota;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 26: Historical K-line Quota (get_history_kl_quota)

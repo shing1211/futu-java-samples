@@ -10,6 +10,7 @@ import com.futu.openapi.pb.QotGetSecuritySnapshot;
 import com.futu.openapi.pb.QotCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 01: Market Snapshot (getMarketSnapshot / getBasicQot)

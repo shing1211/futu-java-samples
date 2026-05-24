@@ -345,10 +345,20 @@ src/main/java/com/futu/sdk/examples/
 ├── Example50_HistoryOrderDeal.java # getOrderList / getOrderFillList historical
 ├── Example51_AccList.java         # getAccList with securities firm info
 ├── Example52_OptionChainFilter.java # getOptionChain + stockFilter
-├── Example53_MarketHeat.java      # getMarketHeat
-├── Example55_EMA.java             # EMA indicator calculation
-├── Example56_ETFComposition.java  # getETFComponent
-└── Example57_VWAPBenchmark.java   # VWAP benchmark analysis
+├── Example53_MarketHeat.java      # getSecuritySnapshot + getCapitalFlow
+├── Example54_OptionAnalytics.java # getOptionVolatility, getOptionExerciseProbability
+├── Example55_EMA.java             # EMA crossover detection
+├── Example56_ETFComposition.java  # getOwnerPlate + getPlateSecurity
+├── Example57_VWAPBenchmark.java   # VWAP benchmark from K-line
+├── Example58_FinancialStatements.java  # 4 financial statement APIs
+├── Example59_ResearchRatings.java     # getResearchAnalystConsensus, getResearchRatingSummary
+├── Example60_CompanyFundamentals.java # getCompanyProfile, getCompanyExecutives, getCompanyOperationalEfficiency
+├── Example61_ShareholdersInsiders.java # 5 shareholder/insider APIs
+├── Example62_CorporateActions.java    # dividends, buybacks, stock splits
+├── Example63_ShortVolumeInterest.java # getDailyShortVolume, getShortInterest
+├── Example64_ValuationScreener.java   # getValuationDetail, getValuationPlateStockList
+├── Example65_TopTenBrokers.java       # getTopTenBuySellBrokers
+└── Helpers.java                   # Shared utilities (sleep, md5, formatting, labels)
 ```
 
 ---

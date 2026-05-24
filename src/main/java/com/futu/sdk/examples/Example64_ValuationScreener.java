@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetValuationDetail;
 import com.futu.openapi.pb.QotGetValuationPlateStockList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 64: Valuation Detail & Plate-based Valuation

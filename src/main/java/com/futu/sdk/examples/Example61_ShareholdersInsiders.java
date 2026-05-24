@@ -12,6 +12,7 @@ import com.futu.openapi.pb.QotGetInsiderHolderList;
 import com.futu.openapi.pb.QotGetInsiderTradeList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 61: Shareholders, Institutional & Insider Data

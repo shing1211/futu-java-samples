@@ -11,6 +11,7 @@ import com.futu.openapi.pb.QotGetFinancialsEarningsPriceMove;
 import com.futu.openapi.pb.QotGetFinancialsEarningsPriceHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 58: Financial Statements

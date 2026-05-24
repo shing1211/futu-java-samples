@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetSubInfo;
 import com.futu.openapi.pb.QotSub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 15: Subscription Management (query_subscription)

@@ -10,6 +10,7 @@ import com.futu.openapi.pb.QotGetCompanyExecutives;
 import com.futu.openapi.pb.QotGetCompanyOperationalEfficiency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 60: Company Fundamentals

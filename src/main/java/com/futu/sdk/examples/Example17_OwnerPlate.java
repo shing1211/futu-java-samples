@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetOwnerPlate;
 import com.futu.openapi.pb.QotGetReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 17: Owner Plate & Reference Stock

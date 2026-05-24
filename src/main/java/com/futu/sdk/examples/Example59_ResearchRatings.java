@@ -9,6 +9,7 @@ import com.futu.openapi.pb.QotGetResearchAnalystConsensus;
 import com.futu.openapi.pb.QotGetResearchRatingSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 59: Research Ratings & Analyst Consensus

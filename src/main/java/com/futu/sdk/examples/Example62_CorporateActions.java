@@ -10,6 +10,7 @@ import com.futu.openapi.pb.QotGetCorporateActionsBuybacks;
 import com.futu.openapi.pb.QotGetCorporateActionsStockSplits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 62: Corporate Actions

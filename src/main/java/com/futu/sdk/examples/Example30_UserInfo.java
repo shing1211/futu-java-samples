@@ -9,6 +9,7 @@ import com.futu.openapi.pb.TrdGetAccList;
 import com.futu.openapi.pb.TrdSubAccPush;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.futu.sdk.examples.Helpers.*;
 
 /**
  * Example 30: Account & User Info

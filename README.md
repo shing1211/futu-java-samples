@@ -7,7 +7,7 @@ porting each example to the Java SDK's native callback-driven async model.
 **SDK:** `com.futunn.openapi:futu-api:10.6.6608` (Maven)
 **Build:** Java 25 · Maven 3.9+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
-**Examples:** 57 (00–57, missing 29 and 54)
+**Examples:** 66 (00–65, missing 29)
 
 ---
 
@@ -145,10 +145,19 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example01_MarketSn
 | 45 | `Example45_StockFilter` | `stockFilter` with extended filter criteria |
 | 46 | `Example46_PlateStockFilter` | `getPlateSecurity` + `stockFilter` — plate-based screener |
 | 47 | `Example47_WarrantFilter` | `getWarrant` + filter for warrant screener |
-| 53 | `Example53_MarketHeat` | `getMarketHeat` — market activity heat map |
-| 55 | `Example55_EMA` | EMA indicator calculation from K-line data |
-| 56 | `Example56_ETFComposition` | `getETFComponent` — ETF holdings/constituents |
-| 57 | `Example57_VWAPBenchmark` | VWAP benchmark analysis for US stocks |
+| 53 | `Example53_MarketHeat` | `getSecuritySnapshot` + `getCapitalFlow` — market activity heat map |
+| 54 | `Example54_OptionAnalytics` | `getOptionVolatility`, `getOptionExerciseProbability` — option analytics |
+| 55 | `Example55_EMA` | EMA(12/26/50/200) crossover detection from K-line data |
+| 56 | `Example56_ETFComposition` | `getOwnerPlate` + `getPlateSecurity` — ETF basket composition |
+| 57 | `Example57_VWAPBenchmark` | VWAP benchmark analysis from K-line data |
+| 58 | `Example58_FinancialStatements` | `getFinancialsStatements`, `getFinancialsRevenueBreakdown`, `getFinancialsEarningsPriceMove`, `getFinancialsEarningsPriceHistory` |
+| 59 | `Example59_ResearchRatings` | `getResearchAnalystConsensus`, `getResearchRatingSummary` |
+| 60 | `Example60_CompanyFundamentals` | `getCompanyProfile`, `getCompanyExecutives`, `getCompanyOperationalEfficiency` |
+| 61 | `Example61_ShareholdersInsiders` | `getShareholdersOverview`, `getShareholdersHoldingChanges`, `getShareholdersInstitutional`, `getInsiderHolderList`, `getInsiderTradeList` |
+| 62 | `Example62_CorporateActions` | `getCorporateActionsDividends`, `getCorporateActionsBuybacks`, `getCorporateActionsStockSplits` |
+| 63 | `Example63_ShortVolumeInterest` | `getDailyShortVolume`, `getShortInterest` |
+| 64 | `Example64_ValuationScreener` | `getValuationDetail`, `getValuationPlateStockList` |
+| 65 | `Example65_TopTenBrokers` | `getTopTenBuySellBrokers` — top broker buy/sell queue |
 
 ### Trading (requires unlock in REAL mode)
 
