@@ -25,6 +25,15 @@ The Futu OpenAPI Java SDK exposes 82 API methods (67 Qot + 15 Trd). After the in
 ## Not in SDK 10.6.6608 (deferred):
 getStockScreen, getOptionScreen, getWarrantScreen, getTechnicalUnusual, getFinancialUnusual, getDerivativeUnusual
 
+## ✅ Resolved in SDK 10.7.6708 (2026-06-05):
+All 6 deferred APIs are now present in `futu-api-10.7.6708` and covered by:
+- `Example66_StockScreen` (getStockScreen)
+- `Example67_OptionScreen` (getOptionScreen)
+- `Example68_WarrantScreen` (getWarrantScreen)
+- `Example69_UnusualActivity` (getTechnicalUnusual, getFinancialUnusual, getDerivativeUnusual)
+
+See `plan/UPGRADE-10.7.6708.md` for details.
+
 ## Conventions (follow Example41_rehab.java style):
 - Package: com.futu.sdk.examples
 - Pattern: `implements FTSPI_Qot, FTSPI_Conn`

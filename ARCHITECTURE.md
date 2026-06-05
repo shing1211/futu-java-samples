@@ -2,13 +2,13 @@
 
 ## Overview
 
-`futu-java-samples` is a Java port of the [futu-python-samples](https://github.com/shing1211/futu-python-samples) project, demonstrating the Futu OpenAPI Java SDK (`com.futunn.openapi:futu-api:10.6.6608`). Each example is a standalone Java file runnable via Maven.
+`futu-java-samples` is a Java port of the [futu-python-samples](https://github.com/shing1211/futu-python-samples) project, demonstrating the Futu OpenAPI Java SDK (`com.futunn.openapi:futu-api:10.7.6708`). Each example is a standalone Java file runnable via Maven.
 
 The SDK uses a **callback-driven async model** — all API calls return immediately, and responses arrive via SPI (Service Provider Interface) callbacks. This differs significantly from the synchronous Python SDK and requires careful handling of the async flow.
 
 ## Key discoveries from debugging
 
-### retCode convention (SDK `10.6.6608`)
+### retCode convention (SDK `10.7.6708`)
 
 The SDK uses `retCode` differently across sync vs async contexts:
 
@@ -358,6 +358,10 @@ src/main/java/com/futu/sdk/examples/
 ├── Example63_ShortVolumeInterest.java # getDailyShortVolume, getShortInterest
 ├── Example64_ValuationScreener.java   # getValuationDetail, getValuationPlateStockList
 ├── Example65_TopTenBrokers.java       # getTopTenBuySellBrokers
+├── Example66_StockScreen.java         # getStockScreen — multi-criteria screener (10.7+)
+├── Example67_OptionScreen.java        # getOptionScreen — option screener (10.7+)
+├── Example68_WarrantScreen.java       # getWarrantScreen — warrant screener (10.7+)
+├── Example69_UnusualActivity.java     # getTechnical/Financial/Derivative Unusual (10.7+)
 └── Helpers.java                   # Shared utilities (sleep, md5, formatting, labels)
 ```
 

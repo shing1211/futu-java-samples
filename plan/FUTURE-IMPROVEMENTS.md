@@ -14,17 +14,16 @@ Items are prioritized by impact and risk. The project is a **monolithic samples 
 
 ## Phase 1: Bug Fixes (Critical) — ✅ COMPLETED 2026-05-23
 
-### 1.1 Fix Example49_AccCashFlow.java — Never calls any API ✅
+### 1.1 Fix Example49_AccCashFlow.java — Never calls any API ✅ (deferred indefinitely)
 
 **File:** `src/main/java/com/futu/sdk/examples/Example49_AccCashFlow.java`  
 **Current state:** Placeholder — iterates over SIMULATE/REAL envs but never invokes a trading protocol call. Lines 95-101 are a no-op with a log message.
 
-**Root cause:** The SDK jar (`futu-api-10.6.6608`) does NOT contain a `TrdGetAccCashFlow` proto class or a `getAccCashFlow()` method on `FTAPI_Conn_Trd`. The only cash flow method available is `getFlowSummary(TrdFlowSummary.Request)` (already demonstrated in Example35).
+**Root cause (verified 2026-06-05 for SDK 10.7.6708):** The SDK jar does NOT contain a `TrdGetAccCashFlow` proto class or a `getAccCashFlow()` method on `FTAPI_Conn_Trd`. Confirmed via `javap -p` on `futu-api-10.7.6708.jar` and `jar tf` over extracted bytecode. This was also true for 10.5.6508 and 10.6.6608. The only cash flow method available is `getFlowSummary(TrdFlowSummary.Request)` (already demonstrated in Example35).
 
-**Fix:** Rewrite Example49 to use `getFlowSummary()` with full callback handling, different direction filters, and richer output than Example35.
+**Status:** DEFERRED INDEFINITELY. The Futu Java SDK has not exposed a per-account cash flow method in any version we have inspected. Cannot be fixed without an SDK feature add from Futu. Example49 should remain a documented no-op stub noting the missing method.
 
-**Risk:** None — current code does nothing.  
-**Effort:** Medium (full rewrite).
+**Alternative fix (considered, rejected):** Rewrite Example49 to use `getFlowSummary()` with different direction filters. Rejected because Example35 already demonstrates this — would be duplicate content.
 
 ---
 
@@ -148,4 +147,39 @@ Phase 3 (Infrastructure) — ✅ COMPLETED 2026-05-23:
   ├── 3.2  Maven wrapper                                ✅
   ├── 3.3  .editorconfig                                ✅
   └── 3.4  GitHub Actions CI                            ✅
+
+## Phase 4: SDK 10.7.6708 Upgrade — ✅ COMPLETED 2026-06-05
+
+### 4.1 SDK version bump ✅
+
+Upgraded `futu-api.version` from 10.6.6608 to 10.7.6708. Verified:
+- `mvn clean compile` — 71 source files compile clean
+- `mvn test` — passes
+- Live `Example00_ConnectHA` returns `serverVer=1007` from OpenD on 172.18.208.88
+- Live `Example01_MarketSnapshot` returns HK.00700 TENCENT and US.AAPL quotes
+
+### 4.2 New screen API examples ✅
+
+Added 4 new examples covering the 6 screen APIs that were added in SDK 10.7 but absent in 10.6:
+- `Example66_StockScreen` — `getStockScreen`
+- `Example67_OptionScreen` — `getOptionScreen`
+- `Example68_WarrantScreen` — `getWarrantScreen`
+- `Example69_UnusualActivity` — `getTechnicalUnusual`, `getFinancialUnusual`, `getDerivativeUnusual`
+
+### 4.3 API surface discovery ✅
+
+Confirmed (via `javap`/`jar tf` on `futu-api-10.7.6708.jar`):
+- 73 Qot methods (vs 27 in 10.5.6508, +46 new)
+- 17 Trd methods (vs 11 in 10.5.6508, +6 new: 5 write + `getComboMaxTrdQtys`)
+- `getAccCashFlow` STILL absent — Example49 remains a no-op stub (see §1.1 above)
+
+### 4.4 Protocol compatibility ✅
+
+No breaking changes. All existing proto classes retain their `c2S_` wrapper field structure. All existing 65 examples compile and run unchanged.
+
+### Remaining deferred items (deferred to future PRs)
+
+- **Option strategy family** (`getOptionQuote`, `getOptionStrategy`, `getOptionStrategyAnalysis`, `getOptionStrategySpread`) — could be Example70+
+- **Trading write method examples** (`placeOrder`, `placeComboOrder`, `unlockTrade`, `subAccPush`) — partially covered by Example34/40; could be expanded
+- **SkillWrap API documentation** — Example69 demonstrates the boilerplate but doesn't decode the content blob (currently prints first 500 chars)
 ```

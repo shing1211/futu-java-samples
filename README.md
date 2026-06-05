@@ -4,10 +4,10 @@ Java examples for [Futu OpenAPI](https://openapi.futunn.com/) — mirrors the
 [futu-python-samples](https://github.com/shing1211/futu-python-samples) project,
 porting each example to the Java SDK's native callback-driven async model.
 
-**SDK:** `com.futunn.openapi:futu-api:10.6.6608` (Maven)
+**SDK:** `com.futunn.openapi:futu-api:10.7.6708` (Maven)
 **Build:** Java 25 · Maven 3.9+
 **Gateway:** [FutuOpenD](https://openapi.futunn.com/futu-api-doc/quick/opend-base.html) on `:11111`
-**Examples:** 66 (00–65, missing 29)
+**Examples:** 70 (00–69, missing 29)
 
 ---
 
@@ -158,6 +158,10 @@ mvn compile exec:java -Dexec.mainClass="com.futu.sdk.examples.Example01_MarketSn
 | 63 | `Example63_ShortVolumeInterest` | `getDailyShortVolume`, `getShortInterest` |
 | 64 | `Example64_ValuationScreener` | `getValuationDetail`, `getValuationPlateStockList` |
 | 65 | `Example65_TopTenBrokers` | `getTopTenBuySellBrokers` — top broker buy/sell queue |
+| 66 | `Example66_StockScreen` | `getStockScreen` — multi-criteria stock screener *(10.7+)* |
+| 67 | `Example67_OptionScreen` | `getOptionScreen` — option screener by underlying *(10.7+)* |
+| 68 | `Example68_WarrantScreen` | `getWarrantScreen` — warrant screener *(10.7+)* |
+| 69 | `Example69_UnusualActivity` | `getTechnicalUnusual` / `getFinancialUnusual` / `getDerivativeUnusual` *(10.7+)* |
 
 ### Trading (requires unlock in REAL mode)
 
@@ -369,7 +373,7 @@ mvn javadoc:javadoc
 
 ### `retCode=2` from `getGlobalState` but connection appears working
 
-This is **expected behavior** in SDK version `10.6.6608`. The server
+This is **expected behavior** in SDK version `10.7.6708`. The server
 successfully authenticates and returns `qotLogined=true, trdLogined=true`.
 `retCode=2` in async callbacks indicates a successful response with data —
 **not an error**. Check `rsp.hasS2C()` and the login flags instead.
@@ -383,11 +387,11 @@ immediately on any security with no prior `sub()` needed.
 ### "Failed to parse protobuf protocol" error
 
 Usually means the SDK version and OpenD version are mismatched.
-SDK `10.6.6608` works with OpenD `10.6.6608` and later.
+SDK `10.7.6708` works with OpenD `10.7.x` (e.g. `serverVer=1007`).
 Downgrade the SDK to match your OpenD version in `pom.xml`:
 
 ```xml
-<futu-api.version>10.5.6508</futu-api.version>
+<futu-api.version>10.6.6608</futu-api.version>
 ```
 
 ### `UninitializedMessageException: Message missing required fields: c2s`
