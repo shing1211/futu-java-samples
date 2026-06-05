@@ -472,7 +472,7 @@ The 9 new examples (54, 58–65) currently log raw `s2c={}` which is functional 
 
 **Approach:** Extract proto class definitions from the SDK jar:
 ```bash
-jar xf ~/.m2/repository/com/futunn/openapi/futu-api/10.6.6608/futu-api-10.6.6608.jar
+jar xf ~/.m2/repository/com/futunn/openapi/futu-api/10.7.6708/futu-api-10.7.6708.jar
 javap -p com/futu/openapi/pb/QotGetOptionVolatility\$S2C.class
 ```
 
