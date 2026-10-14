@@ -48,3 +48,8 @@ graphify-out/
 
 # GitNexus index
 .gitnexus/
+
+# Agent / tooling artifacts
+.claude/
+.omo/
+.opencode/
