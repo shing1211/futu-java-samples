@@ -172,7 +172,8 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
             else heatLabel = "NEUTRAL";
 
             logger.info("\n  === MARKET HEAT GAUGE ===");
-            logger.info("    Advancing: {}  Declining: {}  Breadth: {:+.1f}%", advancing, declining, breadthPct);
+            logger.info("    Advancing: {}  Declining: {}  Breadth: {}%",
+                advancing, declining, String.format("%+.1f", breadthPct));
             logger.info("    Avg intraday range: {}%", f2(avgRange));
             logger.info("    Total turnover: {}", formatTurnover(totalTurnover));
             logger.info("    Heat label: {}", heatLabel);
@@ -190,15 +191,23 @@ public class Example53_MarketHeat implements FTSPI_Qot, FTSPI_Conn {
             int count = s2c.getFlowItemListCount();
             logger.info("    Flow items: {} bars, lastValidTime={}", count, s2c.getLastValidTime());
 
-            double totalIn = 0, totalOut = 0, netFlow = 0;
+            // The SDK exposes in-flow only (no out-flow / net-flow), broken down
+            // by order size. Sum the recent bars to gauge buying pressure.
+            double totalIn = 0, totalMain = 0, totalSuper = 0;
+            double totalBig = 0, totalMid = 0, totalSml = 0;
             for (int i = Math.max(0, count - 10); i < count; i++) {
                 var item = s2c.getFlowItemList(i);
                 totalIn += item.getInFlow();
-                totalOut += 0;  // SDK does not provide granular out-flow; show in-flow breakdown instead
-                netFlow += item.getInFlow();
+                totalMain += item.getMainInFlow();
+                totalSuper += item.getSuperInFlow();
+                totalBig += item.getBigInFlow();
+                totalMid += item.getMidInFlow();
+                totalSml += item.getSmlInFlow();
             }
-            logger.info("    Recent 10 bars — In: {} Out: {} Net: {:+.2f}",
-                formatTurnover(totalIn), formatTurnover(totalOut), formatTurnover(netFlow));
+            logger.info("    Recent 10 bars — total inflow: {}", formatTurnover(totalIn));
+            logger.info("    Breakdown — main: {} (super: {} big: {}) mid: {} small: {}",
+                formatTurnover(totalMain), formatTurnover(totalSuper), formatTurnover(totalBig),
+                formatTurnover(totalMid), formatTurnover(totalSml));
         } else {
             logger.warn("    getCapitalFlow failed retCode={}", retCode);
         }

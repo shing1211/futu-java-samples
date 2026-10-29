@@ -184,7 +184,7 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
                 double yesClose = basic.getLastClosePrice();
                 double chgPct = (curPrice > 0 && yesClose > 0)
                     ? (curPrice - yesClose) / yesClose * 100 : 0;
-                logger.info("  [Qot] {} @ {} ({:+.2f}%)", code, curPrice, chgPct);
+                logger.info("  [Qot] {} @ {} ({}%)", code, curPrice, signed2(chgPct));
             }
         } else {
             logger.warn("  [Qot] onReply_GetBasicQot retCode={} hasS2C={}", retCode, rsp.hasS2C());
@@ -206,9 +206,9 @@ public class Example01_MarketSnapshot implements FTSPI_Qot, FTSPI_Conn {
                     var basic = snap.getBasic();
                     double chgPct = basic.getLastClosePrice() > 0
                         ? (basic.getCurPrice() - basic.getLastClosePrice()) / basic.getLastClosePrice() * 100 : 0;
-                    logger.info("    {} name={} price={} ({:+.2f}%) open={} high={} low={}",
+                    logger.info("    {} name={} price={} ({}%) open={} high={} low={}",
                         basic.getSecurity().getCode(), basic.getName(), basic.getCurPrice(),
-                        chgPct, basic.getOpenPrice(), basic.getHighPrice(), basic.getLowPrice());
+                        signed2(chgPct), basic.getOpenPrice(), basic.getHighPrice(), basic.getLowPrice());
                 }
             }
         } else {

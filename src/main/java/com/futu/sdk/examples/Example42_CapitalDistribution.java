@@ -78,8 +78,8 @@ public class Example42_CapitalDistribution implements FTSPI_Qot, FTSPI_Conn {
             new Stock(MARKET_US, "NVDA", "NVIDIA"),
         };
 
-        logger.info("\n{:12} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>20}",
-            "Code", "Super In", "Big In", "Mid In", "Small In", "Super Out", "Big Out", "Update Time");
+        logger.info("\n{}", String.format("%-12s %10s %10s %10s %10s %10s %10s %20s",
+            "Code", "Super In", "Big In", "Mid In", "Small In", "Super Out", "Big Out", "Update Time"));
         logger.info("-".repeat(100));
 
         for (Stock s : stocks) {

@@ -87,7 +87,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
         int ret = doSubscribe(stocks, subtypes1);
         logger.info("  subscribe ret={}", ret);
         int usedAfter = queryQuota();
-        logger.info("  Quota: used={} remain={} (delta={:+d})", usedAfter, 0, usedAfter - usedBefore);
+        logger.info("  Quota: used={} remain={} (delta={})", usedAfter, 0, String.format("%+d", usedAfter - usedBefore));
         sleep(300);
 
         // ── 2. Add TICKER subtype for sec1 ───────────────────────────────
@@ -97,7 +97,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
             new int[]{QotCommon.SubType.SubType_Ticker.getNumber()});
         logger.info("  subscribe(HK.00700, TICKER) ret={}", ret);
         int usedAfter2 = queryQuota();
-        logger.info("  Quota: used={} (delta={:+d})", usedAfter2, usedAfter2 - usedBefore2);
+        logger.info("  Quota: used={} (delta={})", usedAfter2, String.format("%+d", usedAfter2 - usedBefore2));
         sleep(300);
 
         // ── 3. Unsubscribe specific: QUOTE from HK.09988 ────────────────
@@ -107,7 +107,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
             new int[]{QotCommon.SubType.SubType_Basic.getNumber()});
         logger.info("  unsubscribe(HK.09988, QUOTE) ret={}", ret);
         int usedAfter3 = queryQuota();
-        logger.info("  Quota: used={} (delta={:+d})", usedAfter3, usedAfter3 - usedBefore3);
+        logger.info("  Quota: used={} (delta={})", usedAfter3, String.format("%+d", usedAfter3 - usedBefore3));
         sleep(300);
 
         // ── 4. Unsubscribe all ──────────────────────────────────────────
@@ -129,7 +129,7 @@ public class Example43_SubscribeLifecycle implements FTSPI_Qot, FTSPI_Conn {
             new int[]{QotCommon.SubType.SubType_Basic.getNumber()});
         logger.info("  unsubscribe(HK.09988, Basic) ret={}", ret);
         int usedAfter4 = queryQuota();
-        logger.info("  Quota: used={} (delta={:+d})", usedAfter4, usedAfter4 - usedBefore4);
+        logger.info("  Quota: used={} (delta={})", usedAfter4, String.format("%+d", usedAfter4 - usedBefore4));
 
         } finally {
             qot.close();
